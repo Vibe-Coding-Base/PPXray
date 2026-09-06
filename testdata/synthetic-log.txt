@@ -1,0 +1,508 @@
+; Synthetic Proxifier log fixture — every host, IP and process is invented.
+; IPs come from the RFC 5737 / RFC 3849 documentation ranges; hostnames use
+; .example and .invalid. Safe to commit and to share in bug reports.
+; Regenerate with: python tools/gen-sample-log.py
+
+Proxifier log opened (this line has no timestamp)
+[2026.04.17 23:30:01] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:01] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:01] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:01] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:02] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:02] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:02] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:02] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:03] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:03] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:03] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:03] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:04] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:04] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:04] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:04] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:05] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:05] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:05] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:05] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:30:06] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:06] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:06] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:06] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:07] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:07] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:07] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:07] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:08] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:08] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:08] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:08] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:09] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:09] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:09] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:09] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:10] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:10] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:10] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:10] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:11] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:11] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:11] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:11] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:12] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:12] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:12] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:12] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:13] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:13] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:13] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:13] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:14] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:14] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:14] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:14] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:15] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:15] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:15] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:15] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:16] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:16] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:16] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:16] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:17] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:17] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:17] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:17] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:18] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:18] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:18] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:18] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:19] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:19] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:19] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:19] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:20] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:20] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:20] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:20] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:21] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:21] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:21] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:21] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:22] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:22] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:22] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:22] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:23] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:23] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:23] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:23] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:24] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:24] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:24] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:24] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:25] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:25] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:25] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:25] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:26] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:26] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:26] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:26] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:27] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:27] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:27] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:27] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:28] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:28] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:28] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:28] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:29] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:29] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:29] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:29] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:30] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:30] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:30] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:30] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:31] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:31] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:31] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:31] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:32] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:32] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:32] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:32] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:33] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:33] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:33] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:33] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:34] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:34] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:34] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:34] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:35] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:35] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:35] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:35] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:36] svchost.exe (3044) - telemetry0.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:36] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry0.example
+[2026.04.17 23:30:36] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry0.example, IP=192.0.2.10, ttl=60
+[2026.04.17 23:30:36] svchost.exe (3044) - telemetry0.example(192.0.2.10):443 matching Default rule : direct connection
+[2026.04.17 23:30:37] svchost.exe (3044) - telemetry1.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:37] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry1.example
+[2026.04.17 23:30:37] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry1.example, IP=192.0.2.11, ttl=60
+[2026.04.17 23:30:37] svchost.exe (3044) - telemetry1.example(192.0.2.11):443 matching Default rule : direct connection
+[2026.04.17 23:30:38] svchost.exe (3044) - telemetry2.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:38] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry2.example
+[2026.04.17 23:30:38] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry2.example, IP=192.0.2.12, ttl=60
+[2026.04.17 23:30:38] svchost.exe (3044) - telemetry2.example(192.0.2.12):443 matching Default rule : direct connection
+[2026.04.17 23:30:39] svchost.exe (3044) - telemetry3.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:39] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry3.example
+[2026.04.17 23:30:39] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry3.example, IP=192.0.2.13, ttl=60
+[2026.04.17 23:30:39] svchost.exe (3044) - telemetry3.example(192.0.2.13):443 matching Default rule : direct connection
+[2026.04.17 23:30:40] svchost.exe (3044) - telemetry4.example resolve via 198.51.100.254:53 : DNS
+[2026.04.17 23:30:40] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=1, Name=telemetry4.example
+[2026.04.17 23:30:40] svchost.exe (3044) - 198.51.100.254:53 DNS-UDP response: AF=2, Name=telemetry4.example, IP=192.0.2.14, ttl=60
+[2026.04.17 23:30:40] svchost.exe (3044) - telemetry4.example(192.0.2.14):443 matching Default rule : direct connection
+[2026.04.17 23:30:41] chrome.exe (4120) - cdn0.example(198.51.100.20):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:42] chrome.exe (4120) - cdn1.example(198.51.100.21):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:43] chrome.exe (4120) - cdn2.example(198.51.100.22):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:44] chrome.exe (4120) - cdn3.example(198.51.100.23):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:45] chrome.exe (4120) - cdn4.example(198.51.100.24):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:46] chrome.exe (4120) - cdn5.example(198.51.100.25):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:47] chrome.exe (4120) - cdn6.example(198.51.100.26):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:48] chrome.exe (4120) - cdn0.example(198.51.100.20):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:49] chrome.exe (4120) - cdn1.example(198.51.100.21):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:50] chrome.exe (4120) - cdn2.example(198.51.100.22):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:51] chrome.exe (4120) - cdn3.example(198.51.100.23):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:52] chrome.exe (4120) - cdn4.example(198.51.100.24):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:53] chrome.exe (4120) - cdn5.example(198.51.100.25):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:54] chrome.exe (4120) - cdn6.example(198.51.100.26):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:55] chrome.exe (4120) - cdn0.example(198.51.100.20):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:56] chrome.exe (4120) - cdn1.example(198.51.100.21):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:57] chrome.exe (4120) - cdn2.example(198.51.100.22):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:58] chrome.exe (4120) - cdn3.example(198.51.100.23):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:30:59] chrome.exe (4120) - cdn4.example(198.51.100.24):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:00] chrome.exe (4120) - cdn5.example(198.51.100.25):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:01] chrome.exe (4120) - cdn6.example(198.51.100.26):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:02] chrome.exe (4120) - cdn0.example(198.51.100.20):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:03] chrome.exe (4120) - cdn1.example(198.51.100.21):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:04] chrome.exe (4120) - cdn2.example(198.51.100.22):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:05] chrome.exe (4120) - cdn3.example(198.51.100.23):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:31:06] chrome.exe (4120) - cdn4.example(198.51.100.24):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:07] chrome.exe (4120) - cdn5.example(198.51.100.25):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:08] chrome.exe (4120) - cdn6.example(198.51.100.26):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:09] chrome.exe (4120) - cdn0.example(198.51.100.20):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:10] chrome.exe (4120) - cdn1.example(198.51.100.21):443 matching Browsers rule : proxy HTTPS 203.0.113.9:8080
+[2026.04.17 23:31:11] chrome.exe (4120) - [2001:db8:1::0]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:12] chrome.exe (4120) - [2001:db8:1::1]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:13] chrome.exe (4120) - [2001:db8:1::2]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:14] chrome.exe (4120) - [2001:db8:1::3]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:15] chrome.exe (4120) - [2001:db8:1::4]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:16] chrome.exe (4120) - [2001:db8:1::5]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:17] chrome.exe (4120) - [2001:db8:1::6]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:18] chrome.exe (4120) - [2001:db8:1::7]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:19] chrome.exe (4120) - [2001:db8:1::8]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:20] chrome.exe (4120) - [2001:db8:1::9]:443 (IPv6) matching Browsers rule : direct connection
+[2026.04.17 23:31:21] System (4, System) - 10.0.0.50:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:21] System (4, System) - 198.51.100.20:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:22] System (4, System) - 10.0.0.51:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:22] System (4, System) - 198.51.100.21:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:23] System (4, System) - 10.0.0.52:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:23] System (4, System) - 198.51.100.22:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:24] System (4, System) - 10.0.0.53:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:24] System (4, System) - 198.51.100.23:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:25] System (4, System) - 10.0.0.54:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:25] System (4, System) - 198.51.100.24:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:26] System (4, System) - 10.0.0.55:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:26] System (4, System) - 198.51.100.25:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:27] System (4, System) - 10.0.0.56:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:27] System (4, System) - 198.51.100.26:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:28] System (4, System) - 10.0.0.57:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:28] System (4, System) - 198.51.100.27:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:29] System (4, System) - 10.0.0.58:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:29] System (4, System) - 198.51.100.28:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:30] System (4, System) - 10.0.0.59:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:30] System (4, System) - 198.51.100.29:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:31] System (4, System) - 10.0.0.60:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:31] System (4, System) - 198.51.100.30:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:32] System (4, System) - 10.0.0.61:137 (UDP) matching Localhost rule : direct connection
+[2026.04.17 23:31:32] System (4, System) - 198.51.100.31:445 matching Localhost rule : direct connection
+[2026.04.17 23:31:33] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0000]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:34] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0001]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:35] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0002]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:36] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0003]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:37] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0004]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:38] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0005]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:39] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0006]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:40] applemobiledeviceservice.exe (5668, System) - [fe80::5efe:1:0007]:62078 (IPv6) matching Default rule : connection blocked
+[2026.04.17 23:31:41] rundll32.exe (9001) - 203.0.113.40:443 matching Default rule : direct connection
+[2026.04.17 23:31:42] rundll32.exe (9001) - 203.0.113.41:443 matching Default rule : direct connection
+[2026.04.17 23:31:43] rundll32.exe (9001) - 203.0.113.42:443 matching Default rule : direct connection
+[2026.04.17 23:31:44] rundll32.exe (9001) - 203.0.113.43:443 matching Default rule : direct connection
+[2026.04.17 23:31:45] rundll32.exe (9001) - 203.0.113.44:443 matching Default rule : direct connection
+[2026.04.17 23:31:46] rundll32.exe (9001) - 203.0.113.45:443 matching Default rule : direct connection
+[2026.04.17 23:31:47] regsvr32.exe (9002) - payload-host.example(203.0.113.60):80 matching Default rule : direct connection
+[2026.04.17 23:31:48] regsvr32.exe (9002) - payload-host.example(203.0.113.61):80 matching Default rule : direct connection
+[2026.04.17 23:31:49] regsvr32.exe (9002) - payload-host.example(203.0.113.62):80 matching Default rule : direct connection
+[2026.04.17 23:31:50] regsvr32.exe (9002) - payload-host.example(203.0.113.63):80 matching Default rule : direct connection
+[2026.04.17 23:31:51] certutil.exe (9003) - files.example(203.0.113.70):443 matching Default rule : direct connection
+[2026.04.17 23:31:51] bitsadmin.exe (9004) - drop.example(203.0.113.80):80 matching Default rule : direct connection
+[2026.04.17 23:31:51] cmstp.exe (9005) - 203.0.113.90:443 matching Default rule : direct connection
+[2026.04.17 23:31:52] certutil.exe (9003) - files.example(203.0.113.71):443 matching Default rule : direct connection
+[2026.04.17 23:31:52] bitsadmin.exe (9004) - drop.example(203.0.113.81):80 matching Default rule : direct connection
+[2026.04.17 23:31:52] cmstp.exe (9005) - 203.0.113.91:443 matching Default rule : direct connection
+[2026.04.17 23:31:53] certutil.exe (9003) - files.example(203.0.113.72):443 matching Default rule : direct connection
+[2026.04.17 23:31:53] bitsadmin.exe (9004) - drop.example(203.0.113.82):80 matching Default rule : direct connection
+[2026.04.17 23:31:53] cmstp.exe (9005) - 203.0.113.92:443 matching Default rule : direct connection
+[2026.04.17 23:31:54] cmd.exe (9100) - stage.example(198.51.100.70):8080 matching Default rule : direct connection
+[2026.04.17 23:31:54] powershell.exe (9101) - raw.pastebin.invalid(198.51.100.80):443 matching Default rule : direct connection
+[2026.04.17 23:31:55] cmd.exe (9100) - stage.example(198.51.100.71):8080 matching Default rule : direct connection
+[2026.04.17 23:31:55] powershell.exe (9101) - raw.pastebin.invalid(198.51.100.81):443 matching Default rule : direct connection
+[2026.04.17 23:31:56] cmd.exe (9100) - stage.example(198.51.100.72):8080 matching Default rule : direct connection
+[2026.04.17 23:31:56] powershell.exe (9101) - raw.pastebin.invalid(198.51.100.82):443 matching Default rule : direct connection
+[2026.04.17 23:31:57] cmd.exe (9100) - stage.example(198.51.100.73):8080 matching Default rule : direct connection
+[2026.04.17 23:31:57] powershell.exe (9101) - raw.pastebin.invalid(198.51.100.83):443 matching Default rule : direct connection
+[2026.04.17 23:31:58] cmd.exe (9100) - stage.example(198.51.100.74):8080 matching Default rule : direct connection
+[2026.04.17 23:31:58] powershell.exe (9101) - raw.pastebin.invalid(198.51.100.84):443 matching Default rule : direct connection
+[2026.04.17 23:31:59] invoice_2026_scan.exe (9200) - 203.0.113.150:443 matching Default rule : direct connection
+[2026.04.17 23:32:00] invoice_2026_scan.exe (9200) - 203.0.113.151:443 matching Default rule : direct connection
+[2026.04.17 23:32:01] invoice_2026_scan.exe (9200) - 203.0.113.152:443 matching Default rule : direct connection
+[2026.04.17 23:32:02] lsass.exe (780) - 203.0.113.200:443 matching Default rule : direct connection
+[2026.04.17 23:32:03] winword.exe (9300) - macro-cdn.example(203.0.113.210):443 matching Default rule : direct connection
+[2026.04.17 23:32:04] winword.exe (9300) - macro-cdn.example(203.0.113.211):443 matching Default rule : direct connection
+[2026.04.17 23:32:05] winword.exe (9300) - macro-cdn.example(203.0.113.212):443 matching Default rule : direct connection
+[2026.04.17 23:32:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:32:06] updater.exe (9400) - 203.0.113.230:4444 matching Default rule : direct connection
+[2026.04.17 23:32:07] updater.exe (9400) - 203.0.113.230:8443 matching Default rule : direct connection
+[2026.04.17 23:32:08] updater.exe (9400) - 203.0.113.230:1337 matching Default rule : direct connection
+[2026.04.17 23:32:09] updater.exe (9400) - 203.0.113.230:9001 matching Default rule : direct connection
+[2026.04.17 23:32:10] updater.exe (9400) - 203.0.113.230:5555 matching Default rule : direct connection
+[2026.04.17 23:32:11] updater.exe (9400) - 203.0.113.230:6667 matching Default rule : direct connection
+[2026.04.17 23:32:12] explorer.exe (9500) - 203.0.113.240:445 matching Default rule : direct connection
+[2026.04.17 23:32:13] mstsc.exe (9501) - 203.0.113.241:3389 matching Default rule : direct connection
+[2026.04.17 23:32:14] svchost.exe (3044) - 203.0.113.242:8081 matching Default rule : direct connection
+[2026.04.17 23:32:15] wscript.exe (9600) - 203.0.113.250:443 matching Default rule : direct connection
+[2026.04.17 23:32:16] wscript.exe (9600) - 203.0.113.251:443 matching Default rule : direct connection
+[2026.04.17 23:32:17] wscript.exe (9600) - 203.0.113.252:443 matching Default rule : direct connection
+[2026.04.17 23:32:18] anydesk.exe (9700) - relay0.example(198.51.100.90):443 matching Default rule : direct connection
+[2026.04.17 23:32:19] anydesk.exe (9700) - relay1.example(198.51.100.91):443 matching Default rule : direct connection
+[2026.04.17 23:32:20] anydesk.exe (9700) - relay2.example(198.51.100.92):443 matching Default rule : direct connection
+[2026.04.17 23:32:21] svc-helper.exe (9800) - cdn-node.tk(198.51.100.110):443 matching Default rule : direct connection
+[2026.04.17 23:32:22] svc-helper.exe (9800) - cdn-node.top(198.51.100.110):443 matching Default rule : direct connection
+[2026.04.17 23:32:23] svc-helper.exe (9800) - cdn-node.xyz(198.51.100.110):443 matching Default rule : direct connection
+[2026.04.17 23:32:24] svc-helper.exe (9800) - cdn-node.gq(198.51.100.110):443 matching Default rule : direct connection
+[2026.04.17 23:32:25] svc-helper.exe (9800) - cdn-node.cf(198.51.100.110):443 matching Default rule : direct connection
+[2026.04.17 23:32:26] xmrig-worker.exe (9900) - pool.minexmr.example(198.51.100.120):3333 matching Default rule : direct connection
+[2026.04.17 23:32:27] xmrig-worker.exe (9900) - pool.minexmr.example(198.51.100.121):3333 matching Default rule : direct connection
+[2026.04.17 23:32:28] xmrig-worker.exe (9900) - pool.minexmr.example(198.51.100.122):3333 matching Default rule : direct connection
+[2026.04.17 23:32:29] xmrig-worker.exe (9900) - pool.minexmr.example(198.51.100.123):3333 matching Default rule : direct connection
+[2026.04.17 23:32:30] w3wp.exe (9950) - 203.0.113.260:443 matching Default rule : direct connection
+[2026.04.17 23:32:31] w3wp.exe (9950) - 203.0.113.261:443 matching Default rule : direct connection
+[2026.04.17 23:32:32] w3wp.exe (9950) - 203.0.113.262:443 matching Default rule : direct connection
+[2026.04.17 23:32:33] msedgewebview2.exe (9960) - tracker.example(198.51.100.130):443 matching Default rule : direct connection
+[2026.04.17 23:32:34] msedgewebview2.exe (9960) - tracker.example(198.51.100.131):443 matching Default rule : direct connection
+[2026.04.17 23:32:35] msedgewebview2.exe (9960) - tracker.example(198.51.100.132):443 matching Default rule : direct connection
+[2026.04.17 23:32:36] svc-helper.exe (9800) - 203.0.113.53:853 matching Default rule : direct connection
+[2026.04.17 23:32:37] svc-helper.exe (9800) - dns.example(203.0.113.54):443 matching Default rule : direct connection
+[2026.04.17 23:32:38] svc-helper.exe (9800) - discord.invalid(198.51.100.140):443 matching Default rule : direct connection
+[2026.04.17 23:32:38] svc-helper.exe (9800) - pastebin.invalid(198.51.100.150):443 matching Default rule : direct connection
+[2026.04.17 23:32:39] svc-helper.exe (9800) - discord.invalid(198.51.100.141):443 matching Default rule : direct connection
+[2026.04.17 23:32:39] svc-helper.exe (9800) - pastebin.invalid(198.51.100.151):443 matching Default rule : direct connection
+[2026.04.17 23:32:40] svc-helper.exe (9800) - discord.invalid(198.51.100.142):443 matching Default rule : direct connection
+[2026.04.17 23:32:40] svc-helper.exe (9800) - pastebin.invalid(198.51.100.152):443 matching Default rule : direct connection
+[2026.04.17 23:32:41] scanner.exe (9995) - 198.51.100.200:1000 matching Default rule : direct connection
+[2026.04.17 23:32:42] scanner.exe (9995) - 198.51.100.200:1001 matching Default rule : direct connection
+[2026.04.17 23:32:43] scanner.exe (9995) - 198.51.100.200:1002 matching Default rule : direct connection
+[2026.04.17 23:32:44] scanner.exe (9995) - 198.51.100.200:1003 matching Default rule : direct connection
+[2026.04.17 23:32:45] scanner.exe (9995) - 198.51.100.200:1004 matching Default rule : direct connection
+[2026.04.17 23:32:46] scanner.exe (9995) - 198.51.100.200:1005 matching Default rule : direct connection
+[2026.04.17 23:32:47] scanner.exe (9995) - 198.51.100.200:1006 matching Default rule : direct connection
+[2026.04.17 23:32:48] scanner.exe (9995) - 198.51.100.200:1007 matching Default rule : direct connection
+[2026.04.17 23:32:49] scanner.exe (9995) - 198.51.100.200:1008 matching Default rule : direct connection
+[2026.04.17 23:32:50] scanner.exe (9995) - 198.51.100.200:1009 matching Default rule : direct connection
+[2026.04.17 23:32:51] scanner.exe (9995) - 198.51.100.200:1010 matching Default rule : direct connection
+[2026.04.17 23:32:52] scanner.exe (9995) - 198.51.100.200:1011 matching Default rule : direct connection
+[2026.04.17 23:32:53] scanner.exe (9995) - 198.51.100.200:1012 matching Default rule : direct connection
+[2026.04.17 23:32:54] scanner.exe (9995) - 198.51.100.200:1013 matching Default rule : direct connection
+[2026.04.17 23:32:55] scanner.exe (9995) - 198.51.100.200:1014 matching Default rule : direct connection
+[2026.04.17 23:32:56] scanner.exe (9995) - 198.51.100.200:1015 matching Default rule : direct connection
+[2026.04.17 23:32:57] scanner.exe (9995) - 198.51.100.200:1016 matching Default rule : direct connection
+[2026.04.17 23:32:58] scanner.exe (9995) - 198.51.100.200:1017 matching Default rule : direct connection
+[2026.04.17 23:32:59] scanner.exe (9995) - 198.51.100.200:1018 matching Default rule : direct connection
+[2026.04.17 23:33:00] scanner.exe (9995) - 198.51.100.200:1019 matching Default rule : direct connection
+[2026.04.17 23:33:01] scanner.exe (9995) - 198.51.100.200:1020 matching Default rule : direct connection
+[2026.04.17 23:33:02] scanner.exe (9995) - 198.51.100.200:1021 matching Default rule : direct connection
+[2026.04.17 23:33:03] scanner.exe (9995) - 198.51.100.200:1022 matching Default rule : direct connection
+[2026.04.17 23:33:04] scanner.exe (9995) - 198.51.100.200:1023 matching Default rule : direct connection
+[2026.04.17 23:33:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:33:05] scanner.exe (9995) - 198.51.100.200:1024 matching Default rule : direct connection
+[2026.04.17 23:33:06] scanner.exe (9995) - 198.51.100.200:1025 matching Default rule : direct connection
+[2026.04.17 23:33:07] scanner.exe (9995) - 198.51.100.200:1026 matching Default rule : direct connection
+[2026.04.17 23:33:08] scanner.exe (9995) - 198.51.100.200:1027 matching Default rule : direct connection
+[2026.04.17 23:33:09] scanner.exe (9995) - 198.51.100.200:1028 matching Default rule : direct connection
+[2026.04.17 23:33:10] scanner.exe (9995) - 198.51.100.200:1029 matching Default rule : direct connection
+[2026.04.17 23:33:11] scanner.exe (9995) - 198.51.100.200:1030 matching Default rule : direct connection
+[2026.04.17 23:33:12] scanner.exe (9995) - 198.51.100.200:1031 matching Default rule : direct connection
+[2026.04.17 23:33:13] scanner.exe (9995) - 198.51.100.200:1032 matching Default rule : direct connection
+[2026.04.17 23:33:14] scanner.exe (9995) - 198.51.100.200:1033 matching Default rule : direct connection
+[2026.04.17 23:33:15] scanner.exe (9995) - 198.51.100.200:1034 matching Default rule : direct connection
+[2026.04.17 23:33:16] scanner.exe (9995) - 198.51.100.200:1035 matching Default rule : direct connection
+[2026.04.17 23:33:17] scanner.exe (9995) - 198.51.100.200:1036 matching Default rule : direct connection
+[2026.04.17 23:33:18] scanner.exe (9995) - 198.51.100.200:1037 matching Default rule : direct connection
+[2026.04.17 23:33:19] scanner.exe (9995) - 198.51.100.200:1038 matching Default rule : direct connection
+[2026.04.17 23:33:20] scanner.exe (9995) - 198.51.100.200:1039 matching Default rule : direct connection
+[2026.04.17 23:33:21] scanner.exe (9995) - 198.51.100.200:1040 matching Default rule : direct connection
+[2026.04.17 23:33:22] scanner.exe (9995) - 198.51.100.200:1041 matching Default rule : direct connection
+[2026.04.17 23:33:23] scanner.exe (9995) - 198.51.100.200:1042 matching Default rule : direct connection
+[2026.04.17 23:33:24] scanner.exe (9995) - 198.51.100.200:1043 matching Default rule : direct connection
+[2026.04.17 23:33:25] scanner.exe (9995) - 198.51.100.200:1044 matching Default rule : direct connection
+[2026.04.17 23:33:26] scanner.exe (9995) - 198.51.100.200:1045 matching Default rule : direct connection
+[2026.04.17 23:33:27] scanner.exe (9995) - 198.51.100.200:1046 matching Default rule : direct connection
+[2026.04.17 23:33:28] scanner.exe (9995) - 198.51.100.200:1047 matching Default rule : direct connection
+[2026.04.17 23:33:29] scanner.exe (9995) - 198.51.100.200:1048 matching Default rule : direct connection
+[2026.04.17 23:33:30] scanner.exe (9995) - 198.51.100.200:1049 matching Default rule : direct connection
+[2026.04.17 23:33:31] scanner.exe (9995) - 198.51.100.200:1050 matching Default rule : direct connection
+[2026.04.17 23:33:32] scanner.exe (9995) - 198.51.100.200:1051 matching Default rule : direct connection
+[2026.04.17 23:33:33] scanner.exe (9995) - 198.51.100.200:1052 matching Default rule : direct connection
+[2026.04.17 23:33:34] scanner.exe (9995) - 198.51.100.200:1053 matching Default rule : direct connection
+[2026.04.17 23:33:35] scanner.exe (9995) - 198.51.100.200:1054 matching Default rule : direct connection
+[2026.04.17 23:33:36] scanner.exe (9995) - 198.51.100.200:1055 matching Default rule : direct connection
+[2026.04.17 23:33:37] scanner.exe (9995) - 198.51.100.200:1056 matching Default rule : direct connection
+[2026.04.17 23:33:38] scanner.exe (9995) - 198.51.100.200:1057 matching Default rule : direct connection
+[2026.04.17 23:33:39] scanner.exe (9995) - 198.51.100.200:1058 matching Default rule : direct connection
+[2026.04.17 23:33:40] scanner.exe (9995) - 198.51.100.200:1059 matching Default rule : direct connection
+[2026.04.17 23:33:41] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00000.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:41] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00000.tun.example
+[2026.04.17 23:33:42] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00001.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:42] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00001.tun.example
+[2026.04.17 23:33:43] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00002.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:43] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00002.tun.example
+[2026.04.17 23:33:44] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00003.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:44] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00003.tun.example
+[2026.04.17 23:33:45] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00004.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:45] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00004.tun.example
+[2026.04.17 23:33:46] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00005.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:46] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00005.tun.example
+[2026.04.17 23:33:47] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00006.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:47] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00006.tun.example
+[2026.04.17 23:33:48] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00007.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:48] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00007.tun.example
+[2026.04.17 23:33:49] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00008.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:49] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00008.tun.example
+[2026.04.17 23:33:50] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00009.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:50] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00009.tun.example
+[2026.04.17 23:33:51] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00010.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:51] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00010.tun.example
+[2026.04.17 23:33:52] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00011.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:52] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00011.tun.example
+[2026.04.17 23:33:53] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00012.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:53] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00012.tun.example
+[2026.04.17 23:33:54] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00013.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:54] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00013.tun.example
+[2026.04.17 23:33:55] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00014.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:55] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00014.tun.example
+[2026.04.17 23:33:56] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00015.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:56] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00015.tun.example
+[2026.04.17 23:33:57] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00016.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:57] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00016.tun.example
+[2026.04.17 23:33:58] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00017.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:58] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00017.tun.example
+[2026.04.17 23:33:59] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00018.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:33:59] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00018.tun.example
+[2026.04.17 23:34:00] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00019.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:00] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00019.tun.example
+[2026.04.17 23:34:01] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00020.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:01] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00020.tun.example
+[2026.04.17 23:34:02] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00021.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:02] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00021.tun.example
+[2026.04.17 23:34:03] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00022.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:03] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00022.tun.example
+[2026.04.17 23:34:04] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00023.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:04] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00023.tun.example
+[2026.04.17 23:34:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:34:05] tunnel-client.exe (9997) - a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00024.tun.example DNS request type=16 via 198.51.100.254:53 : DNS
+[2026.04.17 23:34:05] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=16, Name=a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d00024.tun.example
+[2026.04.17 23:34:06] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q0.tun.example
+[2026.04.17 23:34:07] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q1.tun.example
+[2026.04.17 23:34:08] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q2.tun.example
+[2026.04.17 23:34:09] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q3.tun.example
+[2026.04.17 23:34:10] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q4.tun.example
+[2026.04.17 23:34:11] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q5.tun.example
+[2026.04.17 23:34:12] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q6.tun.example
+[2026.04.17 23:34:13] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q7.tun.example
+[2026.04.17 23:34:14] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q8.tun.example
+[2026.04.17 23:34:15] tunnel-client.exe (9997) - 198.51.100.254:53 DNS-UDP request: AF=2, Type=10, Name=null-q9.tun.example
+[2026.04.17 23:34:16] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq000zxrv00.invalid
+[2026.04.17 23:34:17] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq001zxrv07.invalid
+[2026.04.17 23:34:18] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq002zxrv14.invalid
+[2026.04.17 23:34:19] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq003zxrv21.invalid
+[2026.04.17 23:34:20] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq004zxrv28.invalid
+[2026.04.17 23:34:21] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq005zxrv35.invalid
+[2026.04.17 23:34:22] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq006zxrv42.invalid
+[2026.04.17 23:34:23] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq007zxrv49.invalid
+[2026.04.17 23:34:24] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq008zxrv56.invalid
+[2026.04.17 23:34:25] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq009zxrv63.invalid
+[2026.04.17 23:34:26] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq010zxrv70.invalid
+[2026.04.17 23:34:27] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq011zxrv77.invalid
+[2026.04.17 23:34:28] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq012zxrv84.invalid
+[2026.04.17 23:34:29] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq013zxrv91.invalid
+[2026.04.17 23:34:30] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq014zxrv01.invalid
+[2026.04.17 23:34:31] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq015zxrv08.invalid
+[2026.04.17 23:34:32] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq016zxrv15.invalid
+[2026.04.17 23:34:33] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq017zxrv22.invalid
+[2026.04.17 23:34:34] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq018zxrv29.invalid
+[2026.04.17 23:34:35] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq019zxrv36.invalid
+[2026.04.17 23:34:36] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq020zxrv43.invalid
+[2026.04.17 23:34:37] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq021zxrv50.invalid
+[2026.04.17 23:34:38] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq022zxrv57.invalid
+[2026.04.17 23:34:39] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq023zxrv64.invalid
+[2026.04.17 23:34:40] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq024zxrv71.invalid
+[2026.04.17 23:34:41] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq025zxrv78.invalid
+[2026.04.17 23:34:42] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq026zxrv85.invalid
+[2026.04.17 23:34:43] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq027zxrv92.invalid
+[2026.04.17 23:34:44] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq028zxrv02.invalid
+[2026.04.17 23:34:45] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq029zxrv09.invalid
+[2026.04.17 23:34:46] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq030zxrv16.invalid
+[2026.04.17 23:34:47] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq031zxrv23.invalid
+[2026.04.17 23:34:48] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq032zxrv30.invalid
+[2026.04.17 23:34:49] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq033zxrv37.invalid
+[2026.04.17 23:34:50] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq034zxrv44.invalid
+[2026.04.17 23:34:51] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq035zxrv51.invalid
+[2026.04.17 23:34:52] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq036zxrv58.invalid
+[2026.04.17 23:34:53] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq037zxrv65.invalid
+[2026.04.17 23:34:54] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq038zxrv72.invalid
+[2026.04.17 23:34:55] dga-proc.exe (9998) - 198.51.100.254:53 DNS-UDP empty response: AF=2, Name=kq039zxrv79.invalid
+[2026.04.17 23:34:56] svc-helper.exe (9800) - 203.0.113.53:53 DNS-UDP request: AF=2, Type=1, Name=lookup0.example
+[2026.04.17 23:34:57] svc-helper.exe (9800) - 203.0.113.53:53 DNS-UDP request: AF=2, Type=1, Name=lookup1.example
+[2026.04.17 23:34:58] svc-helper.exe (9800) - 203.0.113.53:53 DNS-UDP request: AF=2, Type=1, Name=lookup2.example
+[2026.04.17 23:34:59] svc-helper.exe (9800) - 203.0.113.53:53 DNS-UDP request: AF=2, Type=1, Name=lookup3.example
+[2026.04.17 23:35:00] svc-helper.exe (9800) - 203.0.113.53:53 DNS-UDP request: AF=2, Type=1, Name=lookup4.example
+[2026.04.17 23:35:01] weird.exe (1) - something totally unknown
+[2026.04.17 23:35:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:36:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:37:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:38:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:39:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:40:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:41:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:42:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:43:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:44:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:45:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:46:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:47:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:48:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:49:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:50:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:51:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:52:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:53:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:54:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:55:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:56:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:57:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:58:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection
+[2026.04.17 23:59:05] beacon-svc.exe (9990) - 203.0.113.100:443 matching Default rule : direct connection

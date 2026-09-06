@@ -1,0 +1,56 @@
+[package]
+name = "ppxray"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "ppxray desktop app (Tauri host)"
+
+[lib]
+name = "ppxray_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = "0.2"
+
+ppx-core = { path = "../crates/ppx-core" }
+log-ingest = { path = "../crates/log-ingest" }
+detect-engine = { path = "../crates/detect-engine" }
+llm-bridge = { path = "../crates/llm-bridge" }
+dirs = "6"
+
+# API keys go to the OS credential store, not to settings.json. `settings.json`
+# is plain text in app-data; a key there would be readable by anything running
+# as the user, which is a poor trade for a tool that spends the rest of its
+# effort on egress hygiene.
+#
+# Backends: Credential Manager on Windows, Keychain on macOS, Secret Service on
+# Linux. `crypto-rust` keeps the Linux build off libdbus's C library so the
+# release builder needs no extra system package.
+keyring = { version = "3", features = [
+    "apple-native",
+    "windows-native",
+    "sync-secret-service",
+    "crypto-rust",
+] }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+
+[features]
+# This feature is used for production builds or when a dev server is not
+# specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

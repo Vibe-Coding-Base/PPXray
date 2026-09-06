@@ -1,0 +1,257 @@
+name: release
+
+# Cutting a release
+# -----------------
+#   1. Bump the version in package.json, src-tauri/Cargo.toml (workspace
+#      `version`) and src-tauri/tauri.conf.json — all three must agree.
+#   2. Land that on main, then `git tag v0.2.0 && git push origin v0.2.0`.
+#
+# This runs on the tag, not on every push: a release is a decision, not a
+# side effect of merging. `workflow_dispatch` is there for re-running a
+# failed build without re-tagging.
+#
+# The release is created as a **draft**. Nothing reaches users until you
+# publish it — and the in-app updater specifically reads
+# `releases/latest/download/latest.json`, which GitHub only serves for a
+# published, non-prerelease release.
+#
+# Installers are UNSIGNED (no commercial code-signing certificate). The
+# *update bundles* are signed with the project's ed25519 key, so only the
+# first install needs manual SHA-256 verification — see docs/DISTRIBUTION.md.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build (e.g. v0.2.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # A tag push does not trigger ci.yml, which only watches PRs and main. Without
+  # this job a release could ship code that never passed a single test.
+  # ---------------------------------------------------------------------------
+  verify:
+    name: verify
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check the tag matches the version in the manifests
+        run: |
+          set -euo pipefail
+          tag="${{ github.event.inputs.tag || github.ref_name }}"
+          want="${tag#v}"
+          pkg=$(node -p "require('./package.json').version")
+          conf=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          cargo_v=$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"(.*)".*/\1/')
+          echo "tag=$want package.json=$pkg tauri.conf.json=$conf Cargo.toml=$cargo_v"
+          for got in "$pkg" "$conf" "$cargo_v"; do
+            if [ "$got" != "$want" ]; then
+              echo "::error::version mismatch — tag says $want but a manifest says $got."
+              echo "The updater compares these, so a mismatch ships an update clients ignore."
+              exit 1
+            fi
+          done
+
+      - name: Install Linux system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          # Same key as ci.yml's rust job, which runs on the same OS.
+          # Without it this job recompiles DuckDB from source (~54 min).
+          shared-key: linux-workspace
+          workspaces: |
+            .
+            src-tauri
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --no-fail-fast
+      - run: pnpm -r run check
+      - run: pnpm -r run lint
+      - run: pnpm -r run test
+
+  build:
+    name: bundle (${{ matrix.artifact_name }})
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+            artifact_name: macos-aarch64
+          - platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+            artifact_name: macos-x86_64
+          - platform: ubuntu-22.04
+            args: ""
+            artifact_name: linux-x86_64
+          - platform: windows-latest
+            args: ""
+            artifact_name: windows-x86_64
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Install Linux system deps
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf
+
+      - name: Install Rust stable + target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install JS deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and bundle
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # tauri-action creates the release and uploads to it, so it needs a
+          # token of its own — the `permissions: contents: write` above only
+          # grants the scope, it does not hand the action a credential.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signs the update bundle and emits latest.json. Both secrets are
+          # required — the signing key is password-protected, and a missing
+          # or wrong password fails the bundle step outright.
+          #
+          # Without them the build still succeeds but produces no updater
+          # manifest, so clients would never see the release. If a draft has
+          # no latest.json, check these two secrets *and*
+          # `bundle.createUpdaterArtifacts` in tauri.conf.json — the plugin
+          # config alone only tells the client where to look, it does not
+          # make the bundler emit anything.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: "ppxray ${{ github.event.inputs.tag || github.ref_name }}"
+          releaseBody: |
+            See [CHANGELOG.md](https://github.com/Vibe-Coding-Base/PPXray/blob/main/CHANGELOG.md).
+
+            **Installers are unsigned** — see [DISTRIBUTION.md](https://github.com/Vibe-Coding-Base/PPXray/blob/main/docs/DISTRIBUTION.md) for the SmartScreen / Gatekeeper workaround and the SHA-256 verification steps.
+          releaseDraft: true
+          prerelease: false
+          includeUpdaterJson: true
+          args: ${{ matrix.args }}
+
+  # ---------------------------------------------------------------------------
+  # Publish SHA-256 hashes for every artifact, so the first install — the one
+  # the updater signature cannot cover — can be verified by hand.
+  #
+  # The hashes come from the release API, which reports the digest GitHub
+  # computed for each uploaded asset. The first version of this job downloaded
+  # every artifact and hashed them locally; that moved ~200 MB per release and
+  # failed silently when the download came back empty, leaving `gh release
+  # edit` to overwrite the notes with a body and no table. The job still went
+  # green, because the last command in it succeeded.
+  # ---------------------------------------------------------------------------
+  hashes:
+    name: publish checksums
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Append SHA-256 table to the release notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # Draft releases are not addressable by tag on the REST endpoint, so
+          # find the release in the list instead. `digest` is the SHA-256
+          # GitHub computed for the asset it stored.
+          gh api "repos/$REPO/releases" --paginate \
+            --jq ".[] | select(.tag_name==\"$TAG\") | .assets[] | [.name, .digest] | @tsv" \
+            > digests.tsv
+
+          if [ ! -s digests.tsv ]; then
+            echo "::error::no assets found for $TAG — nothing to checksum"
+            exit 1
+          fi
+
+          gh release view "$TAG" --json body --jq .body > body.md
+
+          # Signatures, the updater manifest and the public key are verified by
+          # the updater's own key check rather than by a hash someone compares
+          # by eye, so they would only pad the table.
+          grep -vE '(\.sig|^latest\.json|^ppxray\.key\.pub)' digests.tsv \
+            | sort > listed.tsv
+
+          {
+            cat body.md
+            echo
+            echo "## SHA-256 verification"
+            echo
+            echo "Check your download before running it — installers are unsigned."
+            echo
+            echo "| Artifact | SHA-256 |"
+            echo "|---|---|"
+            while IFS=$'\t' read -r name digest; do
+              printf '| `%s` | `%s` |\n' "$name" "${digest#sha256:}"
+            done < listed.tsv
+          } > notes.md
+
+          gh release edit "$TAG" --notes-file notes.md
+
+          # The job used to report success while publishing nothing. Confirm
+          # the table actually landed.
+          if ! gh release view "$TAG" --json body --jq .body | grep -q '^## SHA-256 verification$'; then
+            echo "::error::release notes do not contain the checksum table"
+            exit 1
+          fi

@@ -1,0 +1,32 @@
+[package]
+name = "detect-engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "APT / malware detection rule engine over the DuckDB log store"
+
+[lib]
+name = "detect_engine"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+ts-rs = { workspace = true }
+chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
+# See crates/log-ingest/Cargo.toml for why the floor is 1.4.5 and not 1.4.
+duckdb = { version = "1.4.5", features = ["bundled", "chrono"] }
+
+log-ingest = { path = "../log-ingest" }
+# Maintained fork of the archived serde_yaml. Replaced `serde_yml`, which
+# RUSTSEC-2025-0068 flags as unsound and unmaintained — it parses rule YAML,
+# and rule packs come from other people.
+serde_yaml_ng = "0.10"
+
+[dev-dependencies]
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }

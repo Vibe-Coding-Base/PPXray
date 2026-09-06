@@ -1,0 +1,24 @@
+{
+  "name": "ppxray",
+  "version": "0.2.0",
+  "private": true,
+  "packageManager": "pnpm@10.23.0",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "check": "pnpm -r run check",
+    "lint": "pnpm -r run lint",
+    "test": "pnpm -r run test",
+    "fmt:rs": "cargo fmt --all",
+    "check:rs": "cargo clippy --workspace --all-targets -- -D warnings",
+    "test:rs": "cargo test --workspace",
+    "ts-gen": "cargo test -p ppx-core export_bindings"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  }
+}

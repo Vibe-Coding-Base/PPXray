@@ -1,0 +1,213 @@
+:root {
+  /* Monospace for anything host/IP/process — network telemetry must align. */
+  /* Cascadia Mono ships with Windows Terminal and covers Vietnamese; it sits
+   * ahead of Consolas, which is missing several precomposed horn+tone glyphs
+   * and so triggers per-character fallback mid-word. */
+  --mono: "JetBrains Mono", "Cascadia Mono", "Cascadia Code", "Fira Code",
+    Consolas, "Liberation Mono", monospace;
+
+  /*
+   * Dense-content type scale.
+   *
+   * Tables, code blocks and SVG labels were each carrying their own literal
+   * size, inherited from whatever px value the component was first written
+   * with. That left three sizes in play at once - the rules table at 0.72rem
+   * next to the log table at 0.78rem - which read as the modules being
+   * differently sized rather than as any intended hierarchy. Two tokens, one
+   * definition each, so it cannot drift apart again.
+   */
+  --ppxray-text-dense: 0.82rem; /* == theme.fontSizes.xs */
+  --ppxray-text-caption: 0.72rem;
+
+  /* Interface font. Both this and --mono are overwritten as inline styles on
+   * <html> by `stores/ui-prefs.ts`; the values here are the fallback for a
+   * first run with nothing stored yet. */
+  --ppxray-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  /*
+   * Base type scale.
+   *
+   * Mantine sizes everything in `rem` against this, so one number moves the
+   * whole app: font sizes, control heights, paddings, gaps. 16px left a
+   * 1600px desk tool rendering 11-12px body text and 26px-tall buttons,
+   * which is the wrong trade for a view people stare at for hours.
+   */
+  font-size: 18px;
+}
+
+/*
+ * Theme-aware surface tokens.
+ *
+ * These were written with `light-dark()`, which resolves against the used
+ * value of `color-scheme` — and in this app it kept resolving to the *light*
+ * branch while every Mantine component around it rendered dark. The result
+ * was a white event table with pale grey text sitting inside a dark window,
+ * which is the single worst thing the log view can look like.
+ *
+ * Declaring both palettes explicitly removes the dependency on how the engine
+ * resolves `color-scheme` at all: the attribute Mantine writes on <html> is
+ * the only input. Light is the bare `:root` default so a missing attribute
+ * still renders something coherent.
+ */
+:root,
+html[data-mantine-color-scheme="light"] {
+  color-scheme: light;
+
+  --ppxray-surface: var(--mantine-color-gray-0);
+  --ppxray-surface-elevated: var(--mantine-color-white);
+  --ppxray-surface-strong: var(--mantine-color-gray-1);
+  --ppxray-border: var(--mantine-color-gray-3);
+  --ppxray-border-strong: var(--mantine-color-gray-4);
+  --ppxray-row-divider: var(--mantine-color-gray-2);
+
+  /* Exposure Sankey tokens — every SVG element inside that tab reads these
+   * via `fill="var(--token)"` so the view follows the Mantine color scheme. */
+  --ppxray-scene-bg: #f4f6fa;
+  --ppxray-scene-header-bg: rgba(244, 246, 250, 0.92);
+  --ppxray-scene-header-sub: #5f6b80;
+  --ppxray-scene-header-title: #1a2332;
+
+  --ppxray-node-fill: #ffffff;
+  --ppxray-node-text: #1a2332;
+  --ppxray-node-text-dim: #5f6b80;
+
+  --ppxray-internet-grad-start: rgba(200, 215, 235, 0);
+  --ppxray-internet-grad-mid: rgba(200, 215, 235, 0.45);
+  --ppxray-internet-grad-end: rgba(175, 200, 230, 0.7);
+}
+
+html[data-mantine-color-scheme="dark"] {
+  color-scheme: dark;
+
+  /*
+   * Mantine's dimmed grey sits at roughly 4.6:1 on this surface, which is
+   * enough for a caption and not enough for the half of this app that is
+   * dense monospace data on a dark ground. Raised to ~7:1; "secondary" still
+   * reads as secondary because of size and weight, not because it is barely
+   * printed.
+   */
+  --mantine-color-dimmed: #a9b1ba;
+
+  --ppxray-surface: var(--mantine-color-dark-7);
+  --ppxray-surface-elevated: var(--mantine-color-dark-6);
+  --ppxray-surface-strong: var(--mantine-color-dark-5);
+  --ppxray-border: var(--mantine-color-dark-4);
+  --ppxray-border-strong: var(--mantine-color-dark-3);
+  --ppxray-row-divider: var(--mantine-color-dark-6);
+
+  --ppxray-scene-bg: #0b1118;
+  --ppxray-scene-header-bg: rgba(11, 17, 24, 0.92);
+  --ppxray-scene-header-sub: #9aa5b8;
+  --ppxray-scene-header-title: #cfd8e6;
+
+  --ppxray-node-fill: #1a2332;
+  --ppxray-node-text: #eaf1ff;
+  --ppxray-node-text-dim: #9aa5b8;
+
+  --ppxray-internet-grad-start: rgba(14, 26, 42, 0);
+  --ppxray-internet-grad-mid: rgba(14, 26, 42, 0.35);
+  --ppxray-internet-grad-end: rgba(21, 51, 83, 0.55);
+}
+
+html,
+body,
+#root {
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--ppxray-font);
+  /*
+   * `font-synthesis: none` used to be here. It suppresses synthesised bold
+   * and italic, which on a stack where the chosen family lacks a face means
+   * emphasis silently stops rendering - and it is one more variable in the
+   * way of getting Vietnamese diacritics to draw correctly. Nothing here
+   * needed it.
+   */
+  /*
+   * `text-rendering: optimizeLegibility` used to be here. It turns on kerning
+   * and ligatures wholesale, and Chromium mis-places combining marks under
+   * it - Vietnamese tone marks on vowels that already carry a diacritic
+   * (ự, ữ, ợ, ằ) came out detached or doubled. `auto` is the correct default
+   * for body text; nothing here needed the extra shaping.
+   */
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-feature-settings: "calt" 0;
+}
+
+/*
+ * Visible focus.
+ *
+ * Nothing defined one before, so tabbing through the app left no trace of
+ * where you were — which matters here because the log and hunt views are
+ * built out of custom clickable rows and cells (see `clickable()` in
+ * components/shell/States.tsx), not native buttons.
+ *
+ * `:focus-visible` rather than `:focus` so a mouse click on a row doesn't
+ * leave a ring behind; the browser only matches it for keyboard interaction.
+ */
+:focus-visible {
+  outline: 2px solid var(--mantine-color-blue-5);
+  outline-offset: -2px;
+  border-radius: 3px;
+}
+
+/* Rows are absolutely positioned inside a virtualizer, where a negative
+ * offset would clip against the neighbour above. Draw theirs inside. */
+[data-row-focus]:focus-visible {
+  outline-offset: -3px;
+}
+
+/* `react-resizable-panels` styling — invisible by default, accent on hover/
+ * drag so the user discovers the grip without it dominating the chrome. */
+/* The handle is a transparent 8px grab strip; the line the user sees is
+ * drawn by ::after down its middle. Making the whole strip the coloured
+ * divider would have read as an 8px gutter between panes. */
+.ppxray-splitter {
+  position: relative;
+  background: transparent;
+}
+.ppxray-splitter::after {
+  content: "";
+  position: absolute;
+  background: var(--ppxray-border);
+}
+.ppxray-splitter-horizontal::after {
+  left: 0;
+  right: 0;
+  top: 3px;
+  height: 2px;
+}
+.ppxray-splitter-vertical::after {
+  top: 0;
+  bottom: 0;
+  left: 3px;
+  width: 2px;
+}
+.ppxray-splitter:hover::after,
+.ppxray-splitter[data-resize-handle-active]::after {
+  background: var(--mantine-color-blue-7);
+}
+
+/* Resizable column handle — see components/shell/ResizableColumns.tsx. */
+.ppxray-col-resize:hover,
+.ppxray-col-resize:active {
+  background: var(--mantine-color-blue-7);
+  opacity: 0.4;
+}
+
+/* Breakdown-panel rows are click targets that pivot the whole log filter.
+ * Without a hover cue there was no way to tell which row the pointer was on,
+ * since the bar fill encodes magnitude rather than state. */
+.ppxray-bar-row:hover {
+  background: var(--ppxray-surface-strong);
+}

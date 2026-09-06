@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxifierProfile version="102" platform="Windows" product_id="0" product_minver="400">
+	<Options>
+		<Resolve>
+			<AutoModeDetection enabled="true" />
+			<ViaProxy enabled="false" />
+			<BlockNonATypes enabled="true" />
+			<ExclusionList OnlyFromListMode="false">%ComputerName%; localhost; *.local</ExclusionList>
+			<DnsUdpMode>0</DnsUdpMode>
+		</Resolve>
+		<Encryption mode="master">
+			<Hash>0000000000000000000000000000000000000000</Hash>
+		</Encryption>
+		<ConnectionLoopDetection enabled="false" resolve="false" />
+		<Udp mode="mode_block_all" />
+		<LeakPreventionMode enabled="false" />
+		<ProcessOtherUsers enabled="true" />
+		<ProcessServices enabled="true" />
+		<HandleDirectConnections enabled="false" />
+		<HttpProxiesSupport enabled="false" />
+	</Options>
+	<ProxyList>
+		<Proxy id="101" type="SOCKS5">
+			<Options>48</Options>
+			<Port>1080</Port>
+			<Address>203.0.113.11</Address>
+		</Proxy>
+		<Proxy id="102" type="SOCKS5">
+			<Options>48</Options>
+			<Port>60000</Port>
+			<Address>203.0.113.12</Address>
+		</Proxy>
+		<Proxy id="103" type="SOCKS5">
+			<Options>48</Options>
+			<Port>13371</Port>
+			<Address>203.0.113.13</Address>
+			<Label>Home Tor</Label>
+		</Proxy>
+	</ProxyList>
+	<ChainList />
+	<RuleList>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Name>Localhost 1</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Block" />
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Name>Block telemetry 2</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Block" />
+			<Targets>api.example; *.api.example</Targets>
+			<Name>Telemetry &amp; analytics 3</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Name>Mail 4</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Chat 5</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>2001:db8::/32</Targets>
+			<Applications>mailer.exe</Applications>
+			<Name>Cloud sync 6</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>updates.example; *.updates.example</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Password vault 7</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>sync-agent.exe</Applications>
+			<Name>Downloads 8</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>updater.exe</Applications>
+			<Name>Updates 9</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>vault.exe</Applications>
+			<Name>Media 10</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>player.exe</Applications>
+			<Name>Documentation range 11</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>downloader.exe</Applications>
+			<Name>IPv6 documentation 12</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443; 80</Ports>
+			<Targets>vault.example; *.vault.example</Targets>
+			<Name>Internal range 13</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Applications>backup.exe</Applications>
+			<Name>Time sync 14</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>123</Ports>
+			<Targets>*.storage.example; storage.example</Targets>
+			<Name>Catch-all 15</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>Localhost 16</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Block telemetry 17</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>time.example</Targets>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>DNS 18</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>svchost.exe</Applications>
+			<Name>Mail 19</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>System</Applications>
+			<Name>Chat 20</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>installer.exe</Applications>
+			<Name>Cloud sync 21</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Password vault 22</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>mailer.exe</Applications>
+			<Name>Downloads 23</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>chatapp.exe</Applications>
+			<Name>Updates 24</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>sync-agent.exe</Applications>
+			<Name>Media 25</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>updater.exe</Applications>
+			<Name>Documentation range 26</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>vault.exe</Applications>
+			<Name>IPv6 documentation 27</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Name>Internal range 28</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>player.exe</Applications>
+			<Name>Time sync 29</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>downloader.exe</Applications>
+			<Name>Catch-all 30</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>backup.exe</Applications>
+			<Name>Localhost 31</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>indexer.exe</Applications>
+			<Name>Block telemetry 32</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>DNS 33</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Mail 34</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>svchost.exe</Applications>
+			<Name>Chat 35</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>System</Applications>
+			<Name>Cloud sync 36</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>installer.exe</Applications>
+			<Name>Password vault 37</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>browser.exe</Applications>
+			<Name>Downloads 38</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>mailer.exe</Applications>
+			<Name>Updates 39</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>2001:db8::/32</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Media 40</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>sync-agent.exe</Applications>
+			<Name>Documentation range 41</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443;80</Ports>
+			<Targets>updates.example; *.updates.example</Targets>
+			<Name>IPv6 documentation 42</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>updater.exe</Applications>
+			<Name>Internal range 43</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>vault.example; *.vault.example</Targets>
+			<Applications>vault.exe</Applications>
+			<Name>Time sync 44</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Applications>player.exe</Applications>
+			<Name>Catch-all 45</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443; 80</Ports>
+			<Applications>downloader.exe</Applications>
+			<Name>Localhost 46</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Applications>backup.exe</Applications>
+			<Name>Block telemetry 47</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>DNS 48</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Name>Mail 49</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>*.storage.example; storage.example</Targets>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Chat 50</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80; 443</Ports>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Cloud sync 51</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>time.example</Targets>
+			<Applications>svchost.exe</Applications>
+			<Name>Password vault 52</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Applications>System</Applications>
+			<Name>Downloads 53</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>installer.exe</Applications>
+			<Name>Updates 54</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>browser.exe</Applications>
+			<Name>Media 55</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Applications>mailer.exe</Applications>
+			<Name>Documentation range 56</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>chatapp.exe</Applications>
+			<Name>IPv6 documentation 57</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Applications>sync-agent.exe</Applications>
+			<Name>Internal range 58</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>updater.exe</Applications>
+			<Name>Time sync 59</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>vault.exe</Applications>
+			<Name>Catch-all 60</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>player.exe</Applications>
+			<Name>Localhost 61</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>2001:db8::/32</Targets>
+			<Applications>downloader.exe</Applications>
+			<Name>Block telemetry 62</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>updates.example; *.updates.example</Targets>
+			<Applications>backup.exe</Applications>
+			<Name>DNS 63</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>Mail 64</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443; 993; 585; 465; 55396</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Chat 65</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80; 443</Ports>
+			<Targets>vault.example; *.vault.example</Targets>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Cloud sync 66</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Applications>svchost.exe</Applications>
+			<Name>Password vault 67</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>System</Applications>
+			<Name>Downloads 68</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>*.storage.example; storage.example</Targets>
+			<Applications>installer.exe</Applications>
+			<Name>Updates 69</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>time.example</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Media 70</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Name>Documentation range 71</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80; 443</Ports>
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>mailer.exe</Applications>
+			<Name>IPv6 documentation 72</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Internal range 73</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>sync-agent.exe</Applications>
+			<Name>Time sync 74</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>updater.exe</Applications>
+			<Name>Catch-all 75</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>vault.exe</Applications>
+			<Name>Localhost 76</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>player.exe</Applications>
+			<Name>Block telemetry 77</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>2001:db8::/32</Targets>
+			<Applications>downloader.exe</Applications>
+			<Name>DNS 78</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>updates.example; *.updates.example</Targets>
+			<Applications>backup.exe</Applications>
+			<Name>Mail 79</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>Chat 80</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Cloud sync 81</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443;80</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Password vault 82</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>svchost.exe</Applications>
+			<Name>Downloads 83</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>System</Applications>
+			<Name>Updates 84</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>installer.exe</Applications>
+			<Name>Media 85</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>vault.example; *.vault.example</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Documentation range 86</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Applications>mailer.exe</Applications>
+			<Name>IPv6 documentation 87</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>*.storage.example; storage.example</Targets>
+			<Name>Internal range 88</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>chatapp.exe</Applications>
+			<Name>Time sync 89</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>time.example</Targets>
+			<Applications>sync-agent.exe</Applications>
+			<Name>Catch-all 90</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443; 5223</Ports>
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Applications>updater.exe</Applications>
+			<Name>Localhost 91</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>vault.exe</Applications>
+			<Name>Block telemetry 92</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Applications>player.exe</Applications>
+			<Name>DNS 93</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>downloader.exe</Applications>
+			<Name>Mail 94</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443;80</Ports>
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Name>Chat 95</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80; 443</Ports>
+			<Targets>2001:db8::/32</Targets>
+			<Applications>backup.exe</Applications>
+			<Name>Cloud sync 96</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>updates.example; *.updates.example</Targets>
+			<Applications>indexer.exe</Applications>
+			<Name>Password vault 97</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Downloads 98</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>vault.example; *.vault.example</Targets>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Updates 99</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Applications>svchost.exe</Applications>
+			<Name>Media 100</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Applications>System</Applications>
+			<Name>Documentation range 101</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443;22</Ports>
+			<Targets>*.storage.example; storage.example</Targets>
+			<Applications>installer.exe</Applications>
+			<Name>IPv6 documentation 102</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>browser.exe</Applications>
+			<Name>Internal range 103</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>mailer.exe</Applications>
+			<Name>Time sync 104</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>time.example</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Catch-all 105</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Applications>sync-agent.exe</Applications>
+			<Name>Localhost 106</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>updater.exe</Applications>
+			<Name>Block telemetry 107</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>vault.exe</Applications>
+			<Name>DNS 108</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>player.exe</Applications>
+			<Name>Mail 109</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>downloader.exe</Applications>
+			<Name>Chat 110</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>backup.exe</Applications>
+			<Name>Cloud sync 111</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>indexer.exe</Applications>
+			<Name>Password vault 112</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443;80</Ports>
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Downloads 113</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Updates 114</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>8080;6969</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Name>Media 115</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>svchost.exe</Applications>
+			<Name>Documentation range 116</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>System</Applications>
+			<Name>IPv6 documentation 117</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>installer.exe</Applications>
+			<Name>Internal range 118</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>browser.exe</Applications>
+			<Name>Time sync 119</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>mailer.exe</Applications>
+			<Name>Catch-all 120</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443</Ports>
+			<Targets>2001:db8::/32</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Localhost 121</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Targets>updates.example; *.updates.example</Targets>
+			<Name>Block telemetry 122</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>80;443;8080</Ports>
+			<Applications>sync-agent.exe</Applications>
+			<Name>DNS 123</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>updater.exe</Applications>
+			<Name>Mail 124</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>22;1337</Ports>
+			<Applications>vault.exe</Applications>
+			<Name>Chat 125</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>player.exe</Applications>
+			<Name>Cloud sync 126</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Applications>downloader.exe</Applications>
+			<Name>Password vault 127</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>vault.example; *.vault.example</Targets>
+			<Applications>backup.exe</Applications>
+			<Name>Downloads 128</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>Updates 129</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>mail.example; imap.example; smtp.example</Targets>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Media 130</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Documentation range 131</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>*.storage.example; storage.example</Targets>
+			<Applications>svchost.exe</Applications>
+			<Name>IPv6 documentation 132</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>System</Applications>
+			<Name>Internal range 133</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>installer.exe</Applications>
+			<Name>Time sync 134</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>time.example</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Catch-all 135</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>mailer.exe</Applications>
+			<Name>Localhost 136</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Block telemetry 137</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443;80</Ports>
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Applications>sync-agent.exe</Applications>
+			<Name>DNS 138</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>updater.exe</Applications>
+			<Name>Mail 139</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>vault.exe</Applications>
+			<Name>Chat 140</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>player.exe</Applications>
+			<Name>Cloud sync 141</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Applications>downloader.exe</Applications>
+			<Name>Password vault 142</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>backup.exe</Applications>
+			<Name>Downloads 143</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Direct" />
+			<Applications>indexer.exe</Applications>
+			<Name>Updates 144</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>"C:\Program Files\ExampleCorp\tool.exe"</Applications>
+			<Name>Media 145</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>api.example; *.api.example</Targets>
+			<Applications>"C:\Users\User\AppData\Local\App\app.exe"</Applications>
+			<Name>Documentation range 146</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>svchost.exe</Applications>
+			<Name>IPv6 documentation 147</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>System</Applications>
+			<Name>Internal range 148</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Applications>installer.exe</Applications>
+			<Name>Time sync 149</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Catch-all 150</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>2001:db8::/32</Targets>
+			<Applications>mailer.exe</Applications>
+			<Name>Localhost 151</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>updates.example; *.updates.example</Targets>
+			<Applications>chatapp.exe</Applications>
+			<Name>Block telemetry 152</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>telemetry.invalid; *.telemetry.invalid</Targets>
+			<Name>DNS 153</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Applications>sync-agent.exe</Applications>
+			<Name>Mail 154</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Block" />
+			<Name>Chat 155</Name>
+		</Rule>
+	</RuleList>
+</ProxifierProfile>

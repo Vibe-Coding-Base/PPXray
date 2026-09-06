@@ -1,0 +1,71 @@
+---
+source: crates/ppx-core/tests/roundtrip.rs
+expression: head
+---
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxifierProfile version="102" platform="Windows" product_id="0" product_minver="400">
+	<Options>
+		<Resolve>
+			<AutoModeDetection enabled="true" />
+			<ViaProxy enabled="false" />
+			<BlockNonATypes enabled="true" />
+			<ExclusionList OnlyFromListMode="false">%ComputerName%; localhost; *.local</ExclusionList>
+			<DnsUdpMode>0</DnsUdpMode>
+		</Resolve>
+		<Encryption mode="master">
+			<Hash>0000000000000000000000000000000000000000</Hash>
+		</Encryption>
+		<ConnectionLoopDetection enabled="false" resolve="false" />
+		<Udp mode="mode_block_all" />
+		<LeakPreventionMode enabled="false" />
+		<ProcessOtherUsers enabled="true" />
+		<ProcessServices enabled="true" />
+		<HandleDirectConnections enabled="false" />
+		<HttpProxiesSupport enabled="false" />
+	</Options>
+	<ProxyList>
+		<Proxy id="101" type="SOCKS5">
+			<Options>48</Options>
+			<Port>1080</Port>
+			<Address>203.0.113.11</Address>
+		</Proxy>
+		<Proxy id="102" type="SOCKS5">
+			<Options>48</Options>
+			<Port>60000</Port>
+			<Address>203.0.113.12</Address>
+		</Proxy>
+		<Proxy id="103" type="SOCKS5">
+			<Options>48</Options>
+			<Port>13371</Port>
+			<Address>203.0.113.13</Address>
+			<Label>Home Tor</Label>
+		</Proxy>
+	</ProxyList>
+	<ChainList />
+	<RuleList>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Name>Localhost 1</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Block" />
+			<Targets>*.cdn.example; assets.example</Targets>
+			<Name>Block telemetry 2</Name>
+		</Rule>
+		<Rule enabled="false">
+			<Action type="Block" />
+			<Targets>api.example; *.api.example</Targets>
+			<Name>Telemetry &amp; analytics 3</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Ports>443</Ports>
+			<Targets>203.0.113.0/24</Targets>
+			<Name>Mail 4</Name>
+		</Rule>
+		<Rule enabled="true">
+			<Action type="Direct" />
+			<Targets>198.51.100.10-198.51.100.20</Targets>
+			<Applications>browser.exe</Applications>
+			<Name>Chat 5</Na

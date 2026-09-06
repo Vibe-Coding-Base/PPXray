@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "ppxray",
+  "version": "0.2.0",
+  "identifier": "com.tonynguyen.ppxray",
+  "build": {
+    "beforeDevCommand": "pnpm --filter @ppxray/desktop dev",
+    "devUrl": "http://127.0.0.1:5173",
+    "beforeBuildCommand": "pnpm --filter @ppxray/desktop build",
+    "frontendDist": "../apps/desktop/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "ppxray",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 640,
+        "resizable": true,
+        "center": true,
+        "decorations": true,
+        "theme": "Dark"
+      }
+    ],
+    "security": {
+      "csp": {
+        "default-src": "'self'",
+        "script-src": "'self'",
+        "style-src": [
+          "'self'",
+          "'unsafe-inline'"
+        ],
+        "img-src": [
+          "'self'",
+          "data:",
+          "blob:",
+          "asset:",
+          "http://asset.localhost"
+        ],
+        "font-src": [
+          "'self'",
+          "data:"
+        ],
+        "connect-src": [
+          "'self'",
+          "ipc:",
+          "http://ipc.localhost"
+        ],
+        "object-src": "'none'",
+        "frame-src": "'none'",
+        "base-uri": "'self'",
+        "form-action": "'none'"
+      },
+      "devCsp": {
+        "default-src": "'self'",
+        "script-src": [
+          "'self'",
+          "'unsafe-inline'"
+        ],
+        "style-src": [
+          "'self'",
+          "'unsafe-inline'"
+        ],
+        "img-src": [
+          "'self'",
+          "data:",
+          "blob:",
+          "asset:",
+          "http://asset.localhost"
+        ],
+        "font-src": [
+          "'self'",
+          "data:"
+        ],
+        "connect-src": [
+          "'self'",
+          "ipc:",
+          "http://ipc.localhost",
+          "ws://127.0.0.1:5173",
+          "http://127.0.0.1:5173"
+        ],
+        "object-src": "'none'",
+        "frame-src": "'none'",
+        "base-uri": "'self'",
+        "form-action": "'none'"
+      }
+    }
+  },
+  "bundle": {
+    "active": true,
+    "createUpdaterArtifacts": true,
+    "targets": [
+      "msi",
+      "nsis",
+      "dmg",
+      "app",
+      "deb",
+      "appimage"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "copyright": "Copyright (c) 2026 Tony Nguyen",
+    "category": "Utility",
+    "shortDescription": "Manage Proxifier profiles + hunt APT traffic in Proxifier logs",
+    "longDescription": "ppxray is an open-source desktop tool that lets you edit .ppx rule profiles with a proper UX (drag-drop, undo, conflict detection) and stream-parse Proxifier log files into a DuckDB store, then runs a built-in + user-authored detection catalog against the traffic to surface APT-style malware behaviour. Local by default: no telemetry, and the only outbound requests are the user-initiated update check and the opt-in assistant, which is disabled until you enable it and can be pointed at a model running on your own machine.",
+    "publisher": "Tony Nguyen",
+    "licenseFile": "../LICENSE",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/Vibe-Coding-Base/PPXray/releases/latest/download/latest.json"
+      ],
+      "dialog": false,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDFDNkFBOTE3ODM3N0Y1MjUKUldRbDlYZURGNmxxSE5lWjhpcCtIa0xLM25yRFQ3NklMQU1zRlpvanhXMXBWVGJnRWs0dXIwUGwK"
+    }
+  }
+}

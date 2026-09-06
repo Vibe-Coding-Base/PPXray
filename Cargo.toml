@@ -1,0 +1,65 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/detect-engine",
+    "crates/llm-bridge",
+    "crates/log-ingest",
+    "crates/ppx-core",
+    "src-tauri",
+]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2024"
+# 1.88 is forced by `time` >= 0.3.47, which we need for RUSTSEC-2026-0009.
+# This is an application, not a library — nothing compiles ppxray as a
+# dependency, so raising the floor costs only the toolchain contributors
+# install.
+rust-version = "1.88"
+authors = ["Tony Nguyen <tony.nguyen.ai@gmail.com>"]
+license = "MIT"
+# TODO(release): the repository does not exist yet. When it does, update this
+# URL and the copies in README.md, SECURITY.md, CHANGELOG.md and
+# docs/DISTRIBUTION.md.
+repository = "https://github.com/Vibe-Coding-Base/PPXray"
+homepage = "https://github.com/Vibe-Coding-Base/PPXray"
+
+[workspace.dependencies]
+# Shared across workspace
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+quick-xml = { version = "0.41", features = ["serialize"] }
+ts-rs = { version = "11", features = ["serde-compat", "no-serde-warnings"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Testing
+insta = { version = "1", features = ["yaml"] }
+pretty_assertions = "1"
+tempfile = "3"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+opt-level = 3
+
+# These two crates are thin glue over DuckDB — every hot path runs inside
+# DuckDB's C++ (already built -O2), so `opt-level = 3` + `codegen-units = 1`
+# buys no measurable runtime win here while costing ~26min of rustc time on
+# `detect-engine` alone. Keep the aggressive settings for everything else.
+[profile.release.package.detect-engine]
+opt-level = 1
+codegen-units = 16
+
+[profile.release.package.ppxray]
+opt-level = 1
+codegen-units = 16
+
+[profile.dev]
+opt-level = 1  # parsers need some speed even in debug
+
+[profile.dev.package."*"]
+opt-level = 3  # dependencies always optimized

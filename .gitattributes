@@ -1,0 +1,18 @@
+# Normalise every text file to LF in the repository and in the working tree.
+#
+# `rustfmt.toml` sets `newline_style = "Unix"`, so a Windows checkout with
+# git's default `core.autocrlf=true` produces CRLF files that
+# `cargo fmt --check` then rejects — a CI failure that has nothing to do with
+# the change under review. Pinning `eol=lf` here overrides the local setting
+# for everyone.
+* text=auto eol=lf
+
+# Binary — never touch these.
+*.png   binary
+*.ico   binary
+*.icns  binary
+
+# Proxifier writes profiles with CRLF, and `ppx-core` round-trips a file
+# byte-for-byte. Rewriting line endings would break the fixture and the
+# snapshot taken from it.
+*.ppx   -text

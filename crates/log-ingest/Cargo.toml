@@ -1,0 +1,41 @@
+[package]
+name = "log-ingest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Streaming Proxifier log parser + DuckDB loader"
+
+[lib]
+name = "log_ingest"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+ts-rs = { workspace = true }
+
+# Analytical store. `bundled` compiles DuckDB's C++ source in-tree so end users
+# don't need a system DuckDB install. First build is slow (~3 min); subsequent
+# builds are cached.
+#
+# Floor is 1.4.5, not 1.4: DuckDB's vendored `fmt` used
+# `stdext::checked_array_iterator`, which MSVC removed in build tools 14.51
+# (Visual Studio 2026). Everything up to and including 1.4.4 fails to compile
+# there with "'stdext': is not a class or namespace name". Upstream backported
+# the fix to the 1.4 branch and released it as 1.4.5.
+duckdb = { version = "1.4.5", features = ["bundled", "chrono"] }
+
+# Parsing
+memchr = "2"
+chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
+
+# Hashing for per-profile DB paths
+blake3 = "1"
+
+[dev-dependencies]
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+tempfile = { workspace = true }

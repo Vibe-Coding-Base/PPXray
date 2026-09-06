@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en" data-mantine-color-scheme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Transparent 1px favicon so the webview doesn't log a 404 each launch.
+         We own the window chrome in Tauri, so a real icon here is cosmetic. -->
+    <link rel="icon" href="data:," />
+    <title>ppxray</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

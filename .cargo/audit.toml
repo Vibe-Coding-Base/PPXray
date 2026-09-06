@@ -1,0 +1,71 @@
+# cargo-audit configuration.
+#
+# CI runs `cargo audit --deny warnings`, so *anything* not listed below fails
+# the build — a new vulnerability, and equally a crate that becomes
+# unmaintained. That is the point: a security tool cannot accumulate advisory
+# debt quietly.
+#
+# An entry here is a claim, checkable by anyone, that the advisory cannot be
+# acted on from this repository. Every one of them is inside Tauri's own
+# dependency tree; none reaches this workspace's manifests. `cargo tree -i
+# <crate> --target all` shows the path in each case, and the workspace is
+# already pinned to the newest published Tauri (2.11.5).
+#
+# What is NOT here: four advisories this project actually fixed rather than
+# ignored — quick-xml in ppx-core, serde_yml, and the transitive quinn-proto
+# and rustls-webpki. See the CHANGELOG. Reach for a fix first; this file is
+# the last resort.
+
+[advisories]
+ignore = [
+    # ---------------------------------------------------------------------
+    # quick-xml 0.38: quadratic parse time on duplicate attributes, and
+    # unbounded namespace allocation in NsReader. Both high severity, both
+    # fixed in 0.41.
+    #
+    # ppx-core — the crate that parses untrusted `.ppx` files — is on 0.41.
+    # The 0.38 copy reaches the tree only via `tauri-utils -> plist`, which
+    # pins it internally. plist parses bundle metadata shipped inside the
+    # application, not anything a user supplies.
+    #
+    # Delete these two when `cargo tree -i quick-xml@0.38.4 --target all`
+    # comes back empty.
+    # ---------------------------------------------------------------------
+    "RUSTSEC-2026-0194",
+    "RUSTSEC-2026-0195",
+
+    # ---------------------------------------------------------------------
+    # gtk-rs GTK3 bindings, unmaintained since 2024, plus one unsoundness in
+    # glib's VariantStrIter and the proc-macro-error crate their macros use.
+    #
+    # Path: `tauri` / `tao` / `muda` -> gtk 0.18. Tauri v2's Linux backend is
+    # built on GTK3; moving to GTK4 is upstream work with no released version
+    # to upgrade to. These crates are Linux-only — they are not compiled into
+    # the Windows or macOS builds at all.
+    #
+    # Delete when Tauri ships a GTK4 backend.
+    # ---------------------------------------------------------------------
+    "RUSTSEC-2024-0411", # gdkwayland-sys
+    "RUSTSEC-2024-0412", # gdk
+    "RUSTSEC-2024-0413", # atk
+    "RUSTSEC-2024-0414", # gdkx11-sys
+    "RUSTSEC-2024-0415", # gtk
+    "RUSTSEC-2024-0416", # atk-sys
+    "RUSTSEC-2024-0417", # gdkx11
+    "RUSTSEC-2024-0418", # gdk-sys
+    "RUSTSEC-2024-0419", # gtk3-macros
+    "RUSTSEC-2024-0420", # gtk-sys
+    "RUSTSEC-2024-0429", # glib — unsound Iterator impl for VariantStrIter
+    "RUSTSEC-2024-0370", # proc-macro-error — used by glib-macros, gtk3-macros
+
+    # ---------------------------------------------------------------------
+    # unic-* : unmaintained Unicode tables, reached through
+    # `tauri-utils -> urlpattern 0.3`. No newer urlpattern has dropped them,
+    # and tauri-utils is not ours to re-point.
+    # ---------------------------------------------------------------------
+    "RUSTSEC-2025-0075", # unic-char-range
+    "RUSTSEC-2025-0080", # unic-common
+    "RUSTSEC-2025-0081", # unic-char-property
+    "RUSTSEC-2025-0098", # unic-ucd-version
+    "RUSTSEC-2025-0100", # unic-ucd-ident
+]

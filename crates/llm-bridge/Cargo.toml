@@ -1,0 +1,30 @@
+[package]
+name = "llm-bridge"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Optional, opt-in LLM assistance for ppxray: provider clients, payload redaction, egress audit"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+ts-rs = { workspace = true }
+time = { version = "0.3.47", features = ["formatting", "parsing", "macros"] }
+sha2 = "0.10"
+
+# rustls rather than native-tls: one TLS stack across all three platforms,
+# no OpenSSL on the Linux builder, and no system trust-store surprises for a
+# tool whose whole claim is that you can predict what it talks to.
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "rustls-tls",
+    "charset",
+    "http2",
+] }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

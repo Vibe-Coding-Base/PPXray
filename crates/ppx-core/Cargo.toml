@@ -1,0 +1,26 @@
+[package]
+name = "ppx-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Parse / serialize Proxifier .ppx profile files with round-trip safety"
+
+[lib]
+name = "ppx_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+quick-xml = { workspace = true }
+thiserror = { workspace = true }
+ts-rs = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[features]
+default = []
+# Enables #[derive(TS)] bindings export (set by tooling)
+ts-export = []
