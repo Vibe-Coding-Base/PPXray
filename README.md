@@ -57,6 +57,44 @@ Two gaps make that hard in practice, and ppxray closes both:
 Your Proxifier rules are the preventive layer. These detections are the
 detective layer that catches what got through.
 
+## Screens
+
+<p align="center">
+  <img src="docs/screenshots/rules.png" alt="Rules — the rule table with shadow and duplicate detection" width="820">
+  <br>
+  <sub><b>Rules</b> — the profile as an editable policy. Rule 10 is flagged
+  <code>SHADOWED</code> because an earlier rule already catches it, and rule 12
+  <code>DUPLICATE</code> because it repeats rule 7.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/exposure.png" alt="Exposure — a Sankey of what the enabled rules let out" width="820">
+  <br>
+  <sub><b>Exposure</b> — every lane from a rule to the internet, through which
+  port and which proxy. Here two rules exit through a cleartext HTTP proxy,
+  which is one of the six findings on the right.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/log.png" alt="Log — timeline, breakdowns and the event table" width="820">
+  <br>
+  <sub><b>Log</b> — the log as per-process telemetry. Every cell in the table
+  pivots the filter, and <code>beacon-svc.exe</code> hitting one address once a
+  minute is visible before any rule has run.</sub>
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/hunt.png" alt="Hunt — the alert inbox with evidence and ATT&CK tags" width="820">
+  <br>
+  <sub><b>Hunt</b> — 30 detections over that traffic, with the evidence event
+  ids and ATT&CK techniques behind each alert, and a triage decision attached
+  to it.</sub>
+</p>
+
+> Screenshots use generated test data — every host is `.example` or
+> `.invalid`, every address is from RFC 5737 / RFC 3849. See
+> [`testdata/`](testdata/).
+
 ## Install
 
 Download from [Releases](https://github.com/Vibe-Coding-Base/PPXray/releases):
