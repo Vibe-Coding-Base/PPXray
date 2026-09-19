@@ -79,12 +79,15 @@ export function AssistantDrawer({
       size={width}
       padding={0}
       withCloseButton={false}
-      // The point is to keep working while it is open, so it does not trap
-      // focus or dim what is behind it.
+      // The point is to keep working while it is open — reading the rule
+      // list against what the assistant says — so it must not trap focus,
+      // dim the page, or sit an overlay over it. A transparent overlay still
+      // swallows every click, which is what made the rules unreachable.
       lockScroll={false}
       trapFocus={false}
       closeOnClickOutside={false}
-      overlayProps={{ backgroundOpacity: 0 }}
+      withOverlay={false}
+      closeOnEscape={false}
       styles={{ body: { height: "100%", display: "flex", flexDirection: "column" } }}
     >
       <Group

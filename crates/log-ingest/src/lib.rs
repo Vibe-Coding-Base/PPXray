@@ -21,7 +21,9 @@ pub mod suggest;
 
 pub use adhoc::{AdhocResult, schema_description};
 pub use error::{IngestError, IngestResult};
-pub use ingest::{IngestProgress, IngestStats, ingest_file};
+pub use ingest::{
+    IngestMode, IngestProgress, IngestStats, archive_order, ingest_file, ingest_files,
+};
 pub use model::{Action, ConnectionEvent, DnsEvent, Event, Proto};
 pub use parser::parse_line;
 pub use query::{

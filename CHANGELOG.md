@@ -5,6 +5,54 @@ All notable changes to ppxray are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-09-19
+
+### Assistant sees the policy, and can test it
+
+Asked whether a ruleset was tight enough, the assistant could only see the
+`matched_rule` column of the log — the *name* of the rule that fired — and so
+read a rule that names one process and no target as a domain allowlist
+"contaminated" by whatever that process reached. The definition was never in
+front of it.
+
+- **The open profile travels with every question.** Rules in evaluation
+  order with action, applications, targets and ports, followed by what the
+  deterministic analysis found — shadowed rules, blanket Direct rules, missing
+  default-deny, cleartext proxies — so the model argues from those findings
+  rather than re-deriving glob subsumption on its own. Proxy addresses,
+  credentials and the master-password hash are never rendered
+  (`ppx_core::policy_text`, pinned by test).
+- **A rule tester the model can call.** `test_rule_match` evaluates a
+  hypothetical connection with the same matcher the Rules tab uses and
+  reports which rule wins and why each earlier one did or did not match. The
+  prompt tells the model to verify a claim about the policy before making
+  it.
+- **Tools follow from what is open.** `run_sql` only when a log is open,
+  `test_rule_match` only when a profile is; the prompt says which is missing
+  and tells the model to ask the user to open it, naming the tab. The panel
+  shows the same two facts as badges — `profile · 13 rules`, `log · 276
+  events` — so a question about the policy with no profile open is not a
+  surprise afterwards.
+- The profile is the user's own configuration rather than observed traffic,
+  so it is shared at every privacy level, like the rule text the explainer
+  already received. The scope descriptions in Settings and the payload
+  preview say so.
+- The drawer no longer sits a transparent overlay across the app: the rule
+  list stays clickable while the answer is open beside it.
+- Queries and rule tests are folded under one line by default — `3 queries,
+  1 rule test · results stayed on this machine` — and open on click. The
+  answer is what the reader came for; the evidence is one click away, never
+  hidden.
+
+### Several log files in one analysis
+
+Proxifier rotates its log to `Log.txt.1`, `Log.txt.2`, … and the picker did
+not offer them. It now lists them beside `Log.txt`, accepts several at once,
+and reads them oldest-first so ids and timestamps agree. **Add logs** appends
+more files to the analysis that is open — ids continue rather than restart,
+so existing alerts keep pointing at the right rows — and the header shows
+`Log.txt + 2 more files` with the full list on hover.
+
 ## [0.2.0] — 2026-09-06
 
 First public release.
@@ -160,4 +208,5 @@ thing that can open a socket, and it is off until turned on.
 - The rule directory is not watched; refresh manually after editing files
   outside the app.
 
+[0.3.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.2.0

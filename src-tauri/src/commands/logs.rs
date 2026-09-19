@@ -21,8 +21,8 @@
 use std::path::PathBuf;
 
 use log_ingest::{
-    DashboardLimits, EventFilter, EventRow, IngestProgress, IngestStats, LogDashboard, LogStats,
-    LogStore, SuggestOptions, TargetSuggestions, ingest_file, open_store,
+    DashboardLimits, EventFilter, EventRow, IngestMode, IngestProgress, IngestStats, LogDashboard,
+    LogStats, LogStore, SuggestOptions, TargetSuggestions, archive_order, ingest_files, open_store,
     query::{FacetValues, dashboard, facets, stats},
     query_events, store_path_for, suggest_targets,
 };
@@ -38,53 +38,124 @@ const INGEST_PROGRESS_EVENT: &str = "log:ingest-progress";
 pub struct OpenLogResult {
     pub stats: IngestStats,
     pub counts: LogStats,
+    /// Every file in the store now, oldest first — including ones from
+    /// earlier appends, which `stats` does not cover.
+    pub sources: Vec<String>,
 }
 
+/// Open one analysis from one or more log files, replacing whatever was
+/// analysed under the same primary file before.
+///
+/// The files are read in archive order — `Log.txt.2`, `Log.txt.1`, `Log.txt`
+/// — and the store is keyed by the newest of them, so opening the live log
+/// alone later replaces the same analysis rather than creating a second.
 #[tauri::command]
 #[instrument(skip(app, state))]
 pub async fn log_ingest(
-    path: String,
+    paths: Vec<String>,
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<OpenLogResult, AppError> {
-    let source = PathBuf::from(&path);
-    if !source.exists() {
-        return Err(AppError::Other(format!("log file not found: {path}")));
-    }
+    let sources = existing_sources(&paths)?;
+    let primary = sources.last().cloned().expect("existing_sources rejects an empty list");
 
     let data_dir = ensure_data_dir(&app)?;
-    let db_path = store_path_for(&data_dir, &source);
+    let db_path = store_path_for(&data_dir, &primary);
     let store = open_analysis_store(&db_path)?;
 
-    let emitter = app.clone();
-    let store_for_task = store.clone();
-    let src_for_task = source.clone();
+    let stats = run_ingest(&app, &store, sources, IngestMode::Replace).await?;
 
-    let stats = tauri::async_runtime::spawn_blocking(move || {
-        ingest_file(&src_for_task, &store_for_task, |progress: IngestProgress| {
+    // Ingest drops the alert tables on its way through `truncate_events` —
+    // it has to, because `alert_evidence.event_id` points at rows the
+    // re-ingest renumbers. Recreate them here so the Hunt tab has something
+    // to read.
+    ensure_alert_schema(&store)?;
+
+    let result = describe(&store, stats).await?;
+    set_store(&state, store)?;
+    info!(?db_path, events = result.stats.total_events, "log ingest done");
+    Ok(result)
+}
+
+/// Add more log files to the analysis that is already open.
+///
+/// Rows keep accumulating and ids continue, so existing alerts stay valid;
+/// they just do not cover the new rows until the hunt is run again.
+#[tauri::command]
+#[instrument(skip(app, state))]
+pub async fn log_ingest_append(
+    paths: Vec<String>,
+    app: tauri::AppHandle,
+    state: State<'_, AppState>,
+) -> Result<OpenLogResult, AppError> {
+    let sources = existing_sources(&paths)?;
+    let Some(store) = optional_store(&state)? else {
+        return Err(AppError::Other("no log is open to add to — open one first".into()));
+    };
+
+    let stats = run_ingest(&app, &store, sources, IngestMode::Append).await?;
+    let result = describe(&store, stats).await?;
+    info!(events = result.stats.total_events, "log append done");
+    Ok(result)
+}
+
+/// Resolve the paths the picker returned, in archive order, refusing early
+/// on the first one that is not there.
+fn existing_sources(paths: &[String]) -> Result<Vec<PathBuf>, AppError> {
+    if paths.is_empty() {
+        return Err(AppError::Other("no log file was chosen".into()));
+    }
+    let mut sources = Vec::with_capacity(paths.len());
+    for path in paths {
+        let source = PathBuf::from(path);
+        if !source.exists() {
+            return Err(AppError::Other(format!("log file not found: {path}")));
+        }
+        sources.push(source);
+    }
+    Ok(archive_order(&sources))
+}
+
+async fn run_ingest(
+    app: &tauri::AppHandle,
+    store: &LogStore,
+    sources: Vec<PathBuf>,
+    mode: IngestMode,
+) -> Result<IngestStats, AppError> {
+    let emitter = app.clone();
+    let store = store.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        ingest_files(&sources, &store, mode, |progress: IngestProgress| {
             let _ = emitter.emit(INGEST_PROGRESS_EVENT, &progress);
         })
     })
     .await
     .map_err(|e| AppError::Other(format!("ingest task join error: {e}")))?
-    .map_err(map_ingest_err)?;
+    .map_err(map_ingest_err)
+}
 
-    // Ingest drops the alert tables on its way through `truncate_events` —
-    // it has to, because `alert_evidence.event_id` points at rows the
-    // re-ingest renumbers. Recreate them here so the Hunt tab has something
-    // to read; without this the tables exist only between opening the store
-    // and the first byte of the log.
-    ensure_alert_schema(&store)?;
+/// Counts and the file list, read back from the store after a load.
+async fn describe(store: &LogStore, stats: IngestStats) -> Result<OpenLogResult, AppError> {
+    let for_counts = store.clone();
+    let counts = blocking(move || stats_of(&for_counts)).await?;
+    let for_sources = store.clone();
+    let sources = blocking(move || source_files(&for_sources)).await?;
+    Ok(OpenLogResult { stats, counts, sources })
+}
 
-    let store_for_counts = store.clone();
-    let counts =
-        blocking(move || log_ingest::query::stats(&store_for_counts).map_err(map_ingest_err))
-            .await?;
+fn stats_of(store: &LogStore) -> Result<LogStats, AppError> {
+    log_ingest::query::stats(store).map_err(map_ingest_err)
+}
 
-    set_store(&state, store)?;
-
-    info!(?db_path, events = stats.total_events, "log ingest done");
-    Ok(OpenLogResult { stats, counts })
+/// The files this store was built from, in the order they were loaded.
+fn source_files(store: &LogStore) -> Result<Vec<String>, AppError> {
+    store
+        .with_conn(|conn| {
+            let mut stmt = conn.prepare("SELECT source_path FROM ingest_runs ORDER BY id")?;
+            let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;
+            Ok(rows.collect::<Result<Vec<_>, _>>()?)
+        })
+        .map_err(map_ingest_err)
 }
 
 #[tauri::command]

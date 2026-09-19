@@ -14,25 +14,42 @@ import type {
 } from "@ppxray/ipc-schema";
 
 export interface OpenLogResult {
+  /** Every file in the store now, oldest first. */
+  sources: string[];
   stats: IngestStats;
   counts: LogStats;
 }
 
 // --- Ingest / lifecycle ----------------------------------------------------
 
-export async function pickLogFile(): Promise<string | null> {
+/**
+ * Proxifier rotates its log as `Log.txt.1`, `Log.txt.2`, … — the extension a
+ * file dialog sees is the number, so those are listed alongside `txt`. The
+ * range is generous rather than exact; the last filter catches the rest.
+ */
+const ARCHIVE_NUMBERS = Array.from({ length: 50 }, (_, i) => String(i + 1));
+
+/** One or more log files, or an empty list when the picker was cancelled. */
+export async function pickLogFiles(): Promise<string[]> {
   const picked = await openDialog({
-    multiple: false,
+    multiple: true,
     filters: [
-      { name: "Proxifier log", extensions: ["txt", "log"] },
+      { name: "Proxifier logs (Log.txt, Log.txt.1, …)", extensions: ["txt", "log", ...ARCHIVE_NUMBERS] },
       { name: "All files", extensions: ["*"] },
     ],
   });
-  return typeof picked === "string" ? picked : null;
+  if (picked === null) return [];
+  return Array.isArray(picked) ? picked : [picked];
 }
 
-export function ingestLog(path: string): Promise<OpenLogResult> {
-  return invoke<OpenLogResult>("log_ingest", { path });
+/** Open an analysis from these files, replacing the one for the same log. */
+export function ingestLogs(paths: string[]): Promise<OpenLogResult> {
+  return invoke<OpenLogResult>("log_ingest", { paths });
+}
+
+/** Add these files to the analysis that is open. */
+export function appendLogs(paths: string[]): Promise<OpenLogResult> {
+  return invoke<OpenLogResult>("log_ingest_append", { paths });
 }
 
 export function openExistingLog(path: string): Promise<LogStats> {

@@ -63,7 +63,7 @@ const SCOPES: { value: DataScope; label: string; detail: string }[] = [
     value: "schema-only",
     label: "Schema only — recommended",
     detail:
-      "Sends the table and column names and your question. The assistant writes SQL, ppxray runs it here, and the results are shown to you alone. No value from your log is ever transmitted.",
+      "Sends the table and column names, the open profile's rules, and your question. The assistant writes SQL, ppxray runs it here, and the results are shown to you alone. No value from your log is ever transmitted.",
   },
   {
     value: "aggregates",

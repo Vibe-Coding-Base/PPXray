@@ -50,9 +50,9 @@ Two gaps make that hard in practice, and ppxray closes both:
 | --- | --- |
 | **Rules** | Lossless `.ppx` editing — drag-drop reorder, bulk ops, undo/redo, search DSL, a rule tester, and shadow detection that explains *why* one rule covers another (targets / applications / ports → `Any` / `Covers` / `Identical`). |
 | **Exposure** | What your enabled rules actually let out, as a flow diagram: which rules reach the internet, through which ports and proxies, and which findings deserve attention. |
-| **Log** | Stream-parses Proxifier `.txt` logs into a local DuckDB store — timeline, top-N breakdowns, and a virtualized event table where every cell pivots the filter. |
+| **Log** | Stream-parses Proxifier logs — `Log.txt` and its `Log.txt.1`, `Log.txt.2` archives, together or added later — into a local DuckDB store: timeline, top-N breakdowns, and a virtualized event table where every cell pivots the filter. |
 | **Hunt** | Runs 30 built-in detections over that traffic — LOLBin egress, beaconing, DNS tunnelling, LSASS outbound, Office-macro payloads, C2 default ports, remote-admin tools, mining pools, webshell callbacks — plus any YAML rule you drop in. Alerts land in a triage inbox with evidence event IDs and MITRE ATT&CK tags. |
-| **Assistant** | Optional, off by default. Asks questions of the log by writing SQL that runs locally, explains a rule, or reviews a log for outliers — at a privacy level you choose, defaulting to one that sends no log content at all. |
+| **Assistant** | Optional, off by default. Sees the open profile and its deterministic findings, tests a connection against the rules, and asks questions of the log by writing SQL that runs locally — at a privacy level you choose, defaulting to one that sends no log content at all. |
 
 Your Proxifier rules are the preventive layer. These detections are the
 detective layer that catches what got through.
@@ -141,10 +141,13 @@ verified against a key compiled into the binary before anything is installed.
 The one thing that can add a second request is the **Assistant**, and it is off
 until you turn it on. When you do:
 
-- The default privacy level sends the database *schema* and your question — no
-  values. The model writes SQL, ppxray runs it locally, and the results are
-  shown to you alone; the model is told only the row count and column names.
-  Two further levels share query results, masked or unmasked, and you pick.
+- The default privacy level sends the database *schema*, the open profile's
+  rules, and your question — no log values. The model writes SQL, ppxray runs
+  it locally, and the results are shown to you alone; the model is told only
+  the row count and column names. Two further levels share query results,
+  masked or unmasked, and you pick. The profile is your own configuration
+  rather than a record of what you did, so it goes at every level — without
+  proxy addresses or credentials.
 - The recommended endpoint is a local one (Ollama, llama.cpp, LM Studio), where
   nothing leaves the machine at all. Anthropic and any OpenAI-compatible API
   also work.

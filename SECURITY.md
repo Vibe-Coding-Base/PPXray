@@ -81,6 +81,11 @@ machine contacted, so the boundary is a setting rather than a constant
 - `schema-only` (default) — table and column names plus the question. The
   model writes SQL; ppxray executes it locally and hands back only the row
   count and column names. No value from the log is transmitted.
+
+  At every level the open profile's rules are also sent (`ppx_core::policy_text`):
+  names, actions, applications, targets and ports, plus the deterministic
+  findings. Proxy addresses, credentials and the master-password hash are
+  not, and a test pins that.
 - `aggregates` — query results, with hostnames reduced to their registrable
   domain, process paths to a filename and private addresses to their block
   (`llm_bridge::redact`).

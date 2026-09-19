@@ -211,6 +211,14 @@ Two supporting invariants:
   `LlmClient::send` both call `provider::build_body`, which is pure. There is
   no second construction path that could send something the preview did not
   show, and `client::tests::the_preview_is_the_payload` compares the digests.
+- **The profile is configuration, not traffic.** `ppx_core::policy_text`
+  renders the open profile — rules in order, the deterministic findings from
+  `compute_exposure` — and it goes at every privacy level, the same standing
+  as the rule text the explainer receives. It omits proxy addresses,
+  credentials and the master-password hash, and `policy_text::tests` fails if
+  one appears. The model also gets `test_rule_match`, which runs
+  `ppx_core::matcher::simulate` on a hypothetical connection; no log data is
+  involved, so its verdict is shared at every level too.
 - **Model SQL is untrusted, like a rule pack.** `llm_bridge::sql_guard`
   accepts one read-only statement; the caller wraps it in `SELECT * FROM ( … )
   LIMIT n` so a non-query cannot parse; and it executes on the connection

@@ -46,7 +46,7 @@ export function ExplainRuleModal({ rule, index, onClose }: Props) {
     try {
       if (afterApproval) await llmMarkReviewed();
       setPreviewOpen(false);
-      setReply(await llmAsk("explain-rule", text));
+      setReply(await llmAsk("explain-rule", text, undefined, null));
     } catch (e) {
       setError(String(e));
     } finally {

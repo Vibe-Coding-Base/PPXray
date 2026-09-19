@@ -10,6 +10,7 @@ pub mod exposure;
 pub mod matcher;
 mod model;
 mod parser;
+pub mod policy_text;
 mod serializer;
 pub mod validate;
 
@@ -27,6 +28,7 @@ pub use model::{
     Authentication, Chain, ChainMember, ConnectionLoopDetection, Encryption, ExclusionList,
     Options, Profile, Proxy, ProxyType, Resolve, Rule, RuleAction,
 };
+pub use policy_text::{findings_text, policy_context, policy_text};
 pub use validate::{EntryKind, classify_target, validate_application, validate_port};
 
 /// Parse a `.ppx` profile from an XML string.

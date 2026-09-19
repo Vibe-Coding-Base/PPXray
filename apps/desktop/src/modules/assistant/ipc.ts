@@ -4,6 +4,7 @@ import type {
   AuditEntry,
   LlmSettings,
   PayloadPreview,
+  Profile,
   ProviderKind,
   QueryTable,
 } from "@ppxray/ipc-schema";
@@ -37,9 +38,12 @@ export interface ProviderDefaults {
   presets: EndpointPreset[];
 }
 
-/** One query the assistant ran, as shown to the user. */
+/** One tool call the assistant made, as shown to the user. */
 export interface AgentStep {
+  /** `run_sql` or `test_rule_match`. */
+  tool: "run_sql" | "test_rule_match" | (string & {});
   purpose: string;
+  /** The SQL statement, or a one-line rendering of the rule test. */
   sql: string;
   /** The full, unmasked result — the user's own data on their own screen. */
   table: QueryTable | null;
@@ -86,11 +90,20 @@ export interface ConnectionCheck {
 /** One real round trip against the configured endpoint. */
 export const llmTestConnection = () => invoke<ConnectionCheck>("llm_test_connection");
 
-export const llmPreview = (task: Task, input: string) =>
-  invoke<PayloadPreview>("llm_preview", { task, input });
+/**
+ * `profile` is the open profile, or null. It is the user's own configuration
+ * rather than log content, so it travels at every privacy level; the payload
+ * preview shows it, like everything else that is sent.
+ */
+export const llmPreview = (task: Task, input: string, profile: Profile | null) =>
+  invoke<PayloadPreview>("llm_preview", { task, input, profile });
 
-export const llmAsk = (task: Task, input: string, conversationId?: string) =>
-  invoke<AssistantReply>("llm_ask", { task, input, conversationId });
+export const llmAsk = (
+  task: Task,
+  input: string,
+  conversationId: string | undefined,
+  profile: Profile | null,
+) => invoke<AssistantReply>("llm_ask", { task, input, conversationId, profile });
 
 /** Forget one transcript, or every one of them when no id is given. */
 export const llmResetChat = (conversationId?: string) =>

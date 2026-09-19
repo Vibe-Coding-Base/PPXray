@@ -11,8 +11,10 @@ import type {
 import { compileLogSearch, mergeFilters } from "@/modules/log/log-search-dsl";
 
 export interface LogSlice {
-  /** Absolute path of the source log file currently loaded. */
+  /** Absolute path of the primary (newest) log file loaded. */
   sourcePath: string | null;
+  /** Every file in the analysis, oldest first. */
+  sources: string[];
   /** Final stats emitted by `log_ingest`. */
   ingestStats: IngestStats | null;
   /** DuckDB-backed summary, kept fresh after every filter change. */
@@ -29,7 +31,7 @@ export interface LogSlice {
   bucketSecs: number;
 
   // --- mutations ----------------------------------------------------------
-  setLoaded: (path: string, stats: IngestStats, counts: LogStats) => void;
+  setLoaded: (path: string, stats: IngestStats, counts: LogStats, sources: string[]) => void;
   setProgress: (p: IngestProgress | null) => void;
   setCounts: (c: LogStats) => void;
   setFilter: (patch: Partial<EventFilter>) => void;
@@ -55,6 +57,7 @@ const EMPTY_FILTER: EventFilter = {
 function createLogStore(): StoreApi<LogSlice> {
   return create<LogSlice>((set) => ({
     sourcePath: null,
+    sources: [],
     ingestStats: null,
     counts: null,
     progress: null,
@@ -62,9 +65,10 @@ function createLogStore(): StoreApi<LogSlice> {
     searchQuery: "",
     bucketSecs: 60,
 
-    setLoaded: (path, stats, counts) =>
+    setLoaded: (path, stats, counts, sources) =>
       set({
         sourcePath: path,
+        sources,
         ingestStats: stats,
         counts,
         progress: null,
@@ -81,6 +85,7 @@ function createLogStore(): StoreApi<LogSlice> {
     unload: () =>
       set({
         sourcePath: null,
+        sources: [],
         ingestStats: null,
         counts: null,
         progress: null,

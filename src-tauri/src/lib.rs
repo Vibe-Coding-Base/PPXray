@@ -54,6 +54,7 @@ pub fn run() {
             commands::rules::rule_overshadow_scan,
             commands::rules::profile_exposure,
             commands::logs::log_ingest,
+            commands::logs::log_ingest_append,
             commands::logs::log_open_existing,
             commands::logs::log_close,
             commands::logs::log_stats,

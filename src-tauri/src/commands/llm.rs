@@ -3,19 +3,17 @@
 //!
 //! # The loop
 //!
-//! The model gets exactly one tool, `run_sql`. Each turn:
+//! The model gets up to two tools, depending on what is open:
 //!
-//! 1. it proposes a statement;
-//! 2. `llm_bridge::sql_guard` rejects anything that is not a single
-//!    read-only query, and the survivor is wrapped in `SELECT * FROM ( … )
-//!    LIMIT n`;
-//! 3. `log_ingest::adhoc::run` executes it against the sandboxed DuckDB file;
-//! 4. `llm_bridge::table::tool_result` decides what the model is told — at
-//!    the default privacy level, the shape of the result and nothing else.
-//!
-//! The rows always reach the *user*, on every level. The privacy setting
-//! governs what reaches the model, which is a different question and the
-//! only one that involves a network.
+//! * `run_sql`, when a log is open. The statement goes through
+//!   `llm_bridge::sql_guard`, is wrapped in `SELECT * FROM ( … ) LIMIT n`,
+//!   runs on the sandboxed DuckDB file, and `llm_bridge::table::tool_result`
+//!   decides what the model is told — at the default privacy level, the
+//!   shape of the result and nothing else. The rows always reach the *user*.
+//! * `test_rule_match`, when a profile is open. It evaluates one hypothetical
+//!   connection with `ppx_core::matcher::simulate` and returns the verdict.
+//!   The profile is the user's own configuration, so this is shared at every
+//!   privacy level, like the profile text in the system prompt.
 
 use std::sync::Arc;
 
@@ -58,11 +56,14 @@ pub struct LlmStatus {
     pub audit_path: String,
 }
 
-/// One query the assistant ran, as the user sees it.
+/// One tool call the assistant made, as the user sees it.
 #[derive(Debug, Serialize)]
 pub struct AgentStep {
+    /// `run_sql` or `test_rule_match`.
+    pub tool: String,
     /// The model's own one-line statement of what it was establishing.
     pub purpose: String,
+    /// The SQL statement, or a one-line rendering of the rule test.
     pub sql: String,
     /// Present when the query ran. Always the full, unmasked result — this
     /// is the user's own data on the user's own screen.
@@ -338,17 +339,21 @@ fn explain_failure(cfg: &LlmSettings, e: &LlmError) -> (String, Option<String>) 
 pub async fn llm_preview(
     task: Task,
     input: String,
+    profile: Option<ppx_core::Profile>,
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<PayloadPreview, AppError> {
     let cfg = settings::load(&app)?.llm;
     let key = read_key(cfg.provider).await?;
     let store = optional_store(&state)?;
+    let policy = profile.as_ref().map(ppx_core::policy_text);
 
     // Reading the schema touches DuckDB, so it belongs on the blocking pool
     // like every other query in this app.
     let for_build = cfg.clone();
-    let request = blocking(move || build_request(&for_build, task, &input, &store)).await?;
+    let request =
+        blocking(move || build_request(&for_build, task, &input, &store, policy.as_deref()))
+            .await?;
 
     Ok(llm_bridge::preview(&cfg, key.as_deref(), &request))
 }
@@ -374,6 +379,7 @@ pub async fn llm_ask(
     task: Task,
     input: String,
     conversation_id: Option<String>,
+    profile: Option<ppx_core::Profile>,
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<AssistantReply, AppError> {
@@ -410,10 +416,13 @@ pub async fn llm_ask(
 
     let store_for_prompt = store.clone();
     let cfg_for_prompt = cfg.clone();
-    let system = blocking(move || build_system(&cfg_for_prompt, task, &store_for_prompt)).await?;
+    let policy = profile.as_ref().map(ppx_core::policy_text);
+    let system =
+        blocking(move || build_system(&cfg_for_prompt, task, &store_for_prompt, policy.as_deref()))
+            .await?;
     turns.push(Turn::User(opening_message(task, &input)));
 
-    let tools = if task == Task::ExplainRule { Vec::new() } else { vec![prompt::sql_tool()] };
+    let tools = tools_for(task, store.is_some(), profile.is_some());
 
     let mut steps: Vec<AgentStep> = Vec::new();
     let mut input_tokens = 0u32;
@@ -466,7 +475,8 @@ pub async fn llm_ask(
         }
 
         for call in &completion.calls {
-            let (step, result) = run_tool_call(call, store.as_ref(), &cfg).await?;
+            let (step, result) =
+                run_tool_call(call, store.as_ref(), profile.as_ref(), &cfg).await?;
             steps.push(step);
             turns.push(result);
         }
@@ -488,20 +498,42 @@ pub async fn llm_ask(
 
 /// Execute one `run_sql` call, producing both what the user sees and what
 /// goes back to the model.
+/// Which tools a task offers, given what is open. A tool the model cannot
+/// use is worse than none: it spends a turn calling it and then has to be
+/// told in-band that it does not apply.
+fn tools_for(
+    task: Task,
+    log_open: bool,
+    profile_open: bool,
+) -> Vec<llm_bridge::provider::ToolSpec> {
+    if task == Task::ExplainRule {
+        return Vec::new();
+    }
+    let mut tools = Vec::new();
+    if log_open {
+        tools.push(prompt::sql_tool());
+    }
+    if profile_open {
+        tools.push(prompt::match_tool());
+    }
+    tools
+}
+
 async fn run_tool_call(
     call: &ToolCall,
     store: Option<&log_ingest::LogStore>,
+    profile: Option<&ppx_core::Profile>,
     cfg: &LlmSettings,
 ) -> Result<(AgentStep, Turn), AppError> {
     let purpose =
         call.input.get("purpose").and_then(|v| v.as_str()).unwrap_or_default().to_string();
-    let raw_sql = call.input.get("sql").and_then(|v| v.as_str()).unwrap_or_default().to_string();
 
-    let fail = |step_error: String, model_error: String| {
+    let fail = |shown: String, step_error: String, model_error: String| {
         (
             AgentStep {
+                tool: call.name.clone(),
                 purpose: purpose.clone(),
-                sql: raw_sql.clone(),
+                sql: shown,
                 table: None,
                 error: Some(step_error),
                 shared_with_model: false,
@@ -515,13 +547,44 @@ async fn run_tool_call(
         )
     };
 
+    if call.name == prompt::MATCH_TOOL {
+        let shown = render_match_call(&call.input);
+        let Some(profile) = profile else {
+            let why = "No profile is open. Ask the user to open one under Rules.".to_string();
+            return Ok(fail(shown, why.clone(), why));
+        };
+        let (table, content) = run_match(profile, &call.input);
+        return Ok((
+            AgentStep {
+                tool: call.name.clone(),
+                purpose,
+                sql: shown,
+                table: Some(table),
+                error: None,
+                // Policy, not traffic: shared at every level, like the
+                // profile text itself.
+                shared_with_model: true,
+            },
+            Turn::ToolResult {
+                id: call.id.clone(),
+                name: call.name.clone(),
+                content,
+                is_error: false,
+            },
+        ));
+    }
+
+    let raw_sql = call.input.get("sql").and_then(|v| v.as_str()).unwrap_or_default().to_string();
+    let fail =
+        |step_error: String, model_error: String| fail(raw_sql.clone(), step_error, model_error);
+
     if call.name != prompt::SQL_TOOL {
         let why = format!("`{}` is not a tool this application provides.", call.name);
         return Ok(fail(why.clone(), why));
     }
 
     let Some(store) = store else {
-        let why = "No log is open. Ask the user to open one first.".to_string();
+        let why = "No log is open. Ask the user to open one under Log.".to_string();
         return Ok(fail(why.clone(), why));
     };
 
@@ -570,6 +633,7 @@ This is DuckDB. If the message names a                      different function o
     let content = llm_bridge::table::tool_result(&table, cfg.data_scope);
     Ok((
         AgentStep {
+            tool: call.name.clone(),
             purpose,
             sql: statement,
             table: Some(table),
@@ -578,6 +642,101 @@ This is DuckDB. If the message names a                      different function o
         },
         Turn::ToolResult { id: call.id.clone(), name: call.name.clone(), content, is_error: false },
     ))
+}
+
+/// `test_rule_match(application=…, host=…, port=…)`, for the step list.
+fn render_match_call(input: &serde_json::Value) -> String {
+    let field = |k: &str| input.get(k).and_then(|v| v.as_str()).unwrap_or("").trim().to_string();
+    let port = input.get("port").and_then(|v| v.as_u64()).unwrap_or(0);
+    format!(
+        "{}(application={:?}, host={:?}, port={})",
+        prompt::MATCH_TOOL,
+        field("application"),
+        field("host"),
+        if port == 0 { "any".to_string() } else { port.to_string() }
+    )
+}
+
+/// Evaluate the hypothetical connection and describe the outcome twice: as a
+/// table for the user, and as text for the model. Rules after the winner are
+/// left out — Proxifier never evaluates them, and listing them invites the
+/// model to reason about matches that cannot happen.
+fn run_match(profile: &ppx_core::Profile, input: &serde_json::Value) -> (QueryTable, String) {
+    use ppx_core::matcher::{Candidate, FieldOutcome, simulate};
+
+    let field = |k: &str| input.get(k).and_then(|v| v.as_str()).unwrap_or("").trim().to_string();
+    let candidate = Candidate {
+        application: field("application"),
+        host: field("host"),
+        port: input.get("port").and_then(|v| v.as_u64()).unwrap_or(0).min(u16::MAX as u64) as u16,
+    };
+    let result = simulate(&profile.rules, &candidate);
+
+    let outcome = |o: FieldOutcome| match o {
+        FieldOutcome::Any => "any",
+        FieldOutcome::Matched => "matched",
+        FieldOutcome::Unmatched => "no",
+        FieldOutcome::CandidateMissing => "unspecified",
+    };
+    let action_of = |i: usize| ppx_core::policy_text::action_label(&profile.rules[i].action);
+
+    let last = result.winner.unwrap_or(result.evaluations.len().saturating_sub(1));
+    let rows: Vec<Vec<serde_json::Value>> = result
+        .evaluations
+        .iter()
+        .take(last + 1)
+        .map(|e| {
+            vec![
+                serde_json::json!(e.rule_index + 1),
+                serde_json::json!(e.rule_name),
+                serde_json::json!(e.enabled),
+                serde_json::json!(e.matched),
+                serde_json::json!(outcome(e.applications_match)),
+                serde_json::json!(outcome(e.targets_match)),
+                serde_json::json!(outcome(e.ports_match)),
+                serde_json::json!(action_of(e.rule_index)),
+            ]
+        })
+        .collect();
+    let table = QueryTable {
+        columns: ["#", "rule", "enabled", "matched", "applications", "targets", "ports", "action"]
+            .into_iter()
+            .map(String::from)
+            .collect(),
+        rows,
+        truncated: false,
+    };
+
+    let mut content = String::new();
+    match result.winner {
+        Some(i) => {
+            let r = &profile.rules[i];
+            content.push_str(&format!(
+                "Winner: rule #{} \"{}\" -> {}.\n",
+                i + 1,
+                r.name,
+                action_of(i)
+            ));
+        }
+        None => content.push_str(
+            "No rule matched: the connection falls through every rule (Proxifier then \
+             applies its default, which is a direct connection).\n",
+        ),
+    }
+    content.push_str("Rules evaluated, in order (fields: applications / targets / ports):\n");
+    for e in result.evaluations.iter().take(last + 1) {
+        content.push_str(&format!(
+            "  #{} \"{}\"{}: {} — {} / {} / {}\n",
+            e.rule_index + 1,
+            e.rule_name,
+            if e.enabled { "" } else { " [disabled]" },
+            if e.matched { "MATCH" } else { "no match" },
+            outcome(e.applications_match),
+            outcome(e.targets_match),
+            outcome(e.ports_match),
+        ));
+    }
+    (table, content)
 }
 
 // ---------------------------------------------------------------------------
@@ -595,23 +754,34 @@ fn opening_message(task: Task, input: &str) -> String {
     }
 }
 
+/// `policy` is the open profile as `ppx_core::policy_text` renders it. It is
+/// the user's own configuration rather than observed traffic, so it travels
+/// at every privacy level — without it the model can only infer what a rule
+/// allows from the traffic that happened to match it, and reads a rule that
+/// names one process and no target as a domain allowlist.
 fn build_system(
     cfg: &LlmSettings,
     task: Task,
     store: &Option<log_ingest::LogStore>,
+    policy: Option<&str>,
 ) -> Result<String, AppError> {
     Ok(match task {
         Task::ExplainRule => prompt::rule_explainer(),
         Task::Review => {
             let (schema, context) = log_context(store, cfg.data_scope)?;
-            format!(
+            let mut s = format!(
                 "{}\n\nDATABASE SCHEMA\n{schema}\n\n{context}",
                 prompt::anomaly_reviewer(cfg.data_scope)
-            )
+            );
+            if let Some(p) = policy.map(str::trim).filter(|p| !p.is_empty()) {
+                s.push_str("\n\nTHE OPEN PROFILE (the egress policy the log was recorded under)\n");
+                s.push_str(p);
+            }
+            s
         }
         Task::Chat => {
             let (schema, context) = log_context(store, cfg.data_scope)?;
-            prompt::log_assistant(cfg.data_scope, &schema, &context)
+            prompt::log_assistant(cfg.data_scope, &schema, &context, policy)
         }
     })
 }
@@ -635,14 +805,22 @@ fn log_context(
     let schema =
         log_ingest::schema_description(store).map_err(|e| AppError::Other(e.to_string()))?;
     let stats = log_ingest::query::stats(store).map_err(|e| AppError::Other(e.to_string()))?;
+    // A count, not the paths: a path carries the user's name at every
+    // privacy level, and the model only needs to know the log may span
+    // several rotated files.
+    let files: u64 = store
+        .with_conn(|c| Ok(c.query_row("SELECT count(*) FROM ingest_runs", [], |r| r.get(0))?))
+        .map_err(|e| AppError::Other(e.to_string()))?;
     let context = format!(
         "{} connection events and {} DNS events, from {} distinct processes, \
-         spanning {} to {}.",
+         spanning {} to {}, loaded from {} log file{}.",
         stats.total_events,
         stats.total_dns,
         stats.distinct_processes,
         stats.span_start.as_deref().unwrap_or("(unknown)"),
         stats.span_end.as_deref().unwrap_or("(unknown)"),
+        files,
+        if files == 1 { "" } else { "s" },
     );
     Ok((schema, context))
 }
@@ -653,11 +831,12 @@ fn build_request(
     task: Task,
     input: &str,
     store: &Option<log_ingest::LogStore>,
+    policy: Option<&str>,
 ) -> Result<ChatRequest, AppError> {
     Ok(ChatRequest {
-        system: build_system(cfg, task, store)?,
+        system: build_system(cfg, task, store, policy)?,
         turns: vec![Turn::User(opening_message(task, input))],
-        tools: if task == Task::ExplainRule { Vec::new() } else { vec![prompt::sql_tool()] },
+        tools: tools_for(task, store.is_some(), policy.is_some()),
     })
 }
 
@@ -932,22 +1111,85 @@ mod tests {
     }
 
     #[test]
-    fn only_the_rule_explainer_goes_without_a_query_tool() {
-        // A request built with no log open must still be well-formed; the
-        // assistant is told in-band that there is nothing to query.
-        let cfg = LlmSettings::default();
-        for (task, wants_tool) in
-            [(Task::Chat, true), (Task::Review, true), (Task::ExplainRule, false)]
-        {
-            let req = build_request(&cfg, task, "x", &None).unwrap();
-            assert_eq!(!req.tools.is_empty(), wants_tool, "{task:?}");
-        }
+    fn the_tools_offered_follow_from_what_is_open() {
+        let names = |tools: Vec<llm_bridge::provider::ToolSpec>| -> Vec<&'static str> {
+            tools.into_iter().map(|t| t.name).collect()
+        };
+        assert_eq!(names(tools_for(Task::Chat, false, false)), Vec::<&str>::new());
+        assert_eq!(names(tools_for(Task::Chat, true, false)), vec!["run_sql"]);
+        assert_eq!(names(tools_for(Task::Chat, false, true)), vec!["test_rule_match"]);
+        assert_eq!(names(tools_for(Task::Review, true, true)), vec!["run_sql", "test_rule_match"]);
+        // The explainer is given one rule by the user and needs nothing else.
+        assert_eq!(names(tools_for(Task::ExplainRule, true, true)), Vec::<&str>::new());
+    }
+
+    #[test]
+    fn a_rule_test_reports_the_winner_and_stops_there() {
+        use ppx_core::{Profile, Rule, RuleAction};
+        let mut profile: Profile = ppx_core::parse_str(include_str!(
+            "../../../crates/ppx-core/tests/fixtures/sample_profile.ppx"
+        ))
+        .unwrap();
+        profile.rules = vec![
+            Rule {
+                enabled: true,
+                name: "AV".into(),
+                action: RuleAction::Direct,
+                targets: vec![],
+                applications: vec!["ekrn.exe".into()],
+                ports: vec![],
+            },
+            Rule {
+                enabled: true,
+                name: "Default".into(),
+                action: RuleAction::Block,
+                targets: vec![],
+                applications: vec![],
+                ports: vec![],
+            },
+        ];
+
+        let input = serde_json::json!({
+            "application": "ekrn.exe", "host": "x.example", "port": 443, "purpose": "p"
+        });
+        let (table, content) = run_match(&profile, &input);
+        assert!(content.starts_with("Winner: rule #1 \"AV\" -> Direct."), "{content}");
+        // Only the winner is listed; the Block below it was never evaluated.
+        assert_eq!(table.rows.len(), 1);
+        assert!(!content.contains("Default"));
+
+        let input = serde_json::json!({ "application": "evil.exe", "purpose": "p" });
+        let (table, content) = run_match(&profile, &input);
+        assert!(content.starts_with("Winner: rule #2 \"Default\" -> Block."), "{content}");
+        assert_eq!(table.rows.len(), 2);
+        assert_eq!(table.rows[0][3], serde_json::json!(false));
+
+        assert_eq!(
+            render_match_call(&input),
+            "test_rule_match(application=\"evil.exe\", host=\"\", port=any)"
+        );
     }
 
     #[test]
     fn a_prompt_built_without_a_log_says_so() {
         let cfg = LlmSettings::default();
-        let req = build_request(&cfg, Task::Chat, "anything?", &None).unwrap();
+        let req = build_request(&cfg, Task::Chat, "anything?", &None, None).unwrap();
         assert!(req.system.contains("no log is open"));
+        assert!(req.system.contains("No profile is open"));
+    }
+
+    #[test]
+    fn the_open_profile_reaches_the_chat_and_the_review_but_not_the_explainer() {
+        let cfg = LlmSettings::default();
+        let policy = "1. \"Allow AV\" -> Direct; apps: ekrn.exe; targets: any; ports: any";
+        for task in [Task::Chat, Task::Review] {
+            let req = build_request(&cfg, task, "x", &None, Some(policy)).unwrap();
+            assert!(req.system.contains("THE OPEN PROFILE"), "{task:?}");
+            assert!(req.system.contains("apps: ekrn.exe; targets: any"), "{task:?}");
+        }
+        // The explainer is given one rule by the user; the rest of the
+        // profile is not its business.
+        let req = build_request(&cfg, Task::ExplainRule, "x", &None, Some(policy)).unwrap();
+        assert!(!req.system.contains("ekrn.exe"));
     }
 }

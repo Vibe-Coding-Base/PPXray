@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 
 import { useAssistantStore } from "@/stores/assistant-store";
+import { useProfileStore } from "@/stores/profile-store";
 import { llmAsk, llmMarkReviewed, llmStatus, type Task } from "./ipc";
 
 export function useAssistantStatus() {
@@ -27,13 +28,17 @@ export function useAssistant(conversationId: string) {
   const status = useAssistantStatus();
   const reviewed = status.data?.settings.reviewed_payload ?? false;
 
+  // The live profile, unsaved edits included: a question about the policy
+  // is a question about what is on screen, not what is on disk.
+  const profile = useProfileStore((s) => s.profile);
+
   const run = useCallback(
     async (task: Task, input: string) => {
       const shown = task === "review" ? "Review this log" : input;
       const exchangeId = addQuestion(conversationId, shown);
       setBusy(conversationId, true);
       try {
-        const reply = await llmAsk(task, input, conversationId);
+        const reply = await llmAsk(task, input, conversationId, profile);
         resolveExchange(conversationId, exchangeId, { reply });
       } catch (e) {
         resolveExchange(conversationId, exchangeId, { error: String(e) });
@@ -41,7 +46,7 @@ export function useAssistant(conversationId: string) {
         setBusy(conversationId, false);
       }
     },
-    [conversationId, addQuestion, resolveExchange, setBusy],
+    [conversationId, profile, addQuestion, resolveExchange, setBusy],
   );
 
   // The first send goes through the payload preview. Afterwards questions go

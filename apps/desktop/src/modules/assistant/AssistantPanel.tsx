@@ -24,6 +24,8 @@ import {
 import {
   IconAlertTriangle,
   IconBulb,
+  IconChevronDown,
+  IconChevronRight,
   IconEye,
   IconEyeOff,
   IconMessage2,
@@ -36,17 +38,30 @@ import { useEffect, useRef, useState } from "react";
 
 import { EmptyBlock, ErrorBlock, ModuleEmptyState } from "@/components/shell/States";
 import { useLogStore } from "@/stores/log-store";
+import { useProfileStore } from "@/stores/profile-store";
 import { useAssistantStore, type Exchange } from "@/stores/assistant-store";
+import type { AgentStep } from "./ipc";
 import { Markdown } from "./Markdown";
 import { PayloadPreviewModal } from "./PayloadPreviewModal";
 import { ResultTable } from "./ResultTable";
 import { useAssistant } from "./use-assistant";
 
-const SUGGESTIONS = [
+const LOG_SUGGESTIONS = [
   "Which processes reached the most distinct hosts?",
   "Is anything connecting on a fixed interval?",
   "What was blocked, and by which rule?",
   "Which destinations appear only once?",
+];
+
+const PROFILE_SUGGESTIONS = [
+  "Is my ruleset tight enough? Which rules should be narrowed?",
+  "Which rules let a process reach any host?",
+  "Which rules can never fire, and why?",
+];
+
+const BOTH_SUGGESTIONS = [
+  "Which rules match traffic they were probably not written for?",
+  "Which Direct rules carry the most traffic, and to how many hosts?",
 ];
 
 interface Props {
@@ -62,8 +77,18 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
     (s) => s.conversations.find((c) => c.id === conversationId) ?? null,
   );
   const sourcePath = useLogStore((s) => s.sourcePath);
+  const eventCount = useLogStore((s) => s.counts?.total_events ?? null);
+  const ruleCount = useProfileStore((s) => s.profile?.rules.length ?? null);
+  const hasProfile = ruleCount !== null;
+  const hasLog = sourcePath !== null;
   const { status, question, setQuestion, submit, previewFor, setPreviewFor, approveAndSend } =
     useAssistant(conversationId);
+
+  const suggestions = hasProfile && hasLog
+    ? [...BOTH_SUGGESTIONS, PROFILE_SUGGESTIONS[0]!, LOG_SUGGESTIONS[1]!]
+    : hasProfile
+      ? PROFILE_SUGGESTIONS
+      : LOG_SUGGESTIONS;
 
   const settings = status.data?.settings;
   const exchanges = conversation?.exchanges ?? [];
@@ -138,6 +163,39 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
               </Badge>
             </Tooltip>
           )}
+          {/* What the assistant can see right now. A question about the
+              policy with no profile open gets a guess; saying so up front
+              beats explaining it afterwards. */}
+          <Tooltip
+            withArrow
+            multiline
+            w={rem(300)}
+            label={
+              hasProfile
+                ? "The open profile's rules are given to the assistant, with a rule tester it can run. Proxy addresses and credentials are not."
+                : "No profile is open. Open one under Rules for questions about the policy."
+            }
+          >
+            <Badge size="sm" variant={hasProfile ? "light" : "outline"} color={hasProfile ? "teal" : "gray"}>
+              {hasProfile ? `profile · ${ruleCount} rules` : "no profile"}
+            </Badge>
+          </Tooltip>
+          <Tooltip
+            withArrow
+            multiline
+            w={rem(300)}
+            label={
+              hasLog
+                ? "The assistant can query the open log. What it is told about the results depends on the privacy level."
+                : "No log is open. Open one under Log for questions about what actually happened."
+            }
+          >
+            <Badge size="sm" variant={hasLog ? "light" : "outline"} color={hasLog ? "teal" : "gray"}>
+              {hasLog
+                ? `log · ${eventCount === null ? "open" : `${Number(eventCount).toLocaleString()} events`}`
+                : "no log"}
+            </Badge>
+          </Tooltip>
         </Group>
         <Tooltip label="Summarise this log and look for outliers" withArrow>
           <Button
@@ -156,11 +214,23 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
         <Stack p={compact ? "sm" : "md"} gap="lg">
           {exchanges.length === 0 && (
             <EmptyBlock
-              title={sourcePath ? "Ask something about this log" : "Open a log first"}
+              title={
+                hasProfile && hasLog
+                  ? "Ask about the policy, the traffic, or how they fit"
+                  : hasProfile
+                    ? "Ask about this profile"
+                    : hasLog
+                      ? "Ask something about this log"
+                      : "Open a profile or a log first"
+              }
               hint={
-                sourcePath
-                  ? "The assistant answers by writing SQL that runs here, against the log you have open."
-                  : "Load a Proxifier log under Log, then come back."
+                hasProfile && hasLog
+                  ? "The assistant sees the rules, can test a connection against them, and can query the log."
+                  : hasProfile
+                    ? "The assistant sees the rules and can test a connection against them. Open a log under Log to ask what actually happened."
+                    : hasLog
+                      ? "The assistant answers by writing SQL that runs here. Open the profile under Rules to ask about the policy too."
+                      : "Load a profile under Rules or a log under Log, then come back."
               }
             />
           )}
@@ -174,7 +244,7 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
       <Stack p={compact ? "sm" : "md"} gap={6} style={{ borderTop: "1px solid var(--ppxray-border)" }}>
         {exchanges.length === 0 && (
           <Group gap={6}>
-            {SUGGESTIONS.map((s) => (
+            {suggestions.map((s) => (
               <Button
                 key={s}
                 size="compact-sm"
@@ -190,7 +260,7 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
         <Group align="flex-end" wrap="nowrap">
           <Textarea
             style={{ flex: 1 }}
-            placeholder="Ask about this log…"
+            placeholder={hasProfile && !hasLog ? "Ask about this profile…" : "Ask about this log…"}
             autosize
             minRows={1}
             maxRows={5}
@@ -231,6 +301,10 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
 
 function ExchangeView({ exchange }: { exchange: Exchange }) {
   const [showThinking, setShowThinking] = useState(false);
+  // The queries are evidence, not the answer, so they start folded — but
+  // never hidden: the summary line says how many ran, whether any failed,
+  // and whether their results reached the model.
+  const [showSteps, setShowSteps] = useState(false);
   const { question, reply, error } = exchange;
 
   return (
@@ -256,11 +330,29 @@ function ExchangeView({ exchange }: { exchange: Exchange }) {
 
       {reply && (
         <Stack gap="xs" pl={22}>
+          {reply.steps.length > 0 && (
+            <Button
+              size="compact-sm"
+              variant="subtle"
+              color="gray"
+              justify="flex-start"
+              leftSection={
+                showSteps ? <IconChevronDown size="0.9rem" /> : <IconChevronRight size="0.9rem" />
+              }
+              aria-expanded={showSteps}
+              onClick={() => setShowSteps((v) => !v)}
+              style={{ alignSelf: "flex-start" }}
+            >
+              {stepsSummary(reply.steps)}
+            </Button>
+          )}
+          <Collapse in={showSteps}>
+          <Stack gap="xs">
           {reply.steps.map((step, i) => (
             <Box key={i}>
               <Group gap={6} mb={2}>
                 <Badge size="sm" variant="light" color="gray">
-                  query {i + 1}
+                  {step.tool === "test_rule_match" ? "rule test" : "query"} {i + 1}
                 </Badge>
                 <Text size="sm" c="dimmed">
                   {step.purpose}
@@ -270,9 +362,11 @@ function ExchangeView({ exchange }: { exchange: Exchange }) {
                   multiline
                   w={rem(280)}
                   label={
-                    step.shared_with_model
-                      ? "These results were also sent to the model, with hostnames and process paths reduced first."
-                      : "These results stayed on this machine. The model was told only how many rows came back and what the columns were."
+                    step.tool === "test_rule_match"
+                      ? "A rule test evaluates the open profile, not the log, so its verdict is shared with the model at every privacy level."
+                      : step.shared_with_model
+                        ? "These results were also sent to the model, with hostnames and process paths reduced first."
+                        : "These results stayed on this machine. The model was told only how many rows came back and what the columns were."
                   }
                 >
                   <Badge
@@ -303,6 +397,8 @@ function ExchangeView({ exchange }: { exchange: Exchange }) {
               )}
             </Box>
           ))}
+          </Stack>
+          </Collapse>
 
           {reply.thinking && (
             <Box>
@@ -347,6 +443,22 @@ function ExchangeView({ exchange }: { exchange: Exchange }) {
   );
 }
 
+/** "3 queries, 1 rule test · 1 failed · results stayed on this machine". */
+function stepsSummary(steps: AgentStep[]): string {
+  const queries = steps.filter((s) => s.tool !== "test_rule_match").length;
+  const tests = steps.length - queries;
+  const failed = steps.filter((s) => s.error).length;
+  const shared = steps.some((s) => !s.error && s.shared_with_model);
+
+  const parts: string[] = [];
+  if (queries > 0) parts.push(`${queries} ${queries === 1 ? "query" : "queries"}`);
+  if (tests > 0) parts.push(`${tests} rule ${tests === 1 ? "test" : "tests"}`);
+  let text = parts.join(", ");
+  if (failed > 0) text += ` · ${failed} failed`;
+  text += shared ? " · results shared with the model" : " · results stayed on this machine";
+  return text;
+}
+
 /** Kept beside the panel that shows them so the wording cannot drift. */
 export function scopeLabel(scope: string): string {
   if (scope === "schema-only") return "schema only";
@@ -356,10 +468,10 @@ export function scopeLabel(scope: string): string {
 
 export function scopeHint(scope: string): string {
   if (scope === "schema-only") {
-    return "Only the table and column names and your question are sent. Query results are shown here and never reach the model.";
+    return "Only the table and column names, the open profile's rules, and your question are sent. Query results are shown here and never reach the model.";
   }
   if (scope === "aggregates") {
-    return "Query results are sent, with hostnames reduced to their registrable domain, process paths to a filename, and private addresses to their block.";
+    return "Query results are sent, with hostnames reduced to their registrable domain, process paths to a filename, and private addresses to their block. The open profile's rules are sent as written.";
   }
-  return "Query results are sent unchanged, including exact hostnames and addresses.";
+  return "Query results are sent unchanged, including exact hostnames and addresses, along with the open profile's rules.";
 }

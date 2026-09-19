@@ -85,7 +85,7 @@ fn at_the_default_level_a_full_round_trip_carries_no_log_values() {
     ];
 
     let request = ChatRequest {
-        system: prompt::log_assistant(cfg.data_scope, SCHEMA, "482 events over 3 days."),
+        system: prompt::log_assistant(cfg.data_scope, SCHEMA, "482 events over 3 days.", None),
         turns,
         tools: vec![prompt::sql_tool()],
     };

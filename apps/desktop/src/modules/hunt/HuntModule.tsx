@@ -30,7 +30,7 @@ import { SplitGroup, SplitHandle, SplitPanel } from "@/components/shell/Splitter
 import { useLogStore, useLogStoreShallow } from "@/stores/log-store";
 import { ModuleEmptyState } from "@/components/shell/States";
 import { useHuntStore, useHuntStoreShallow } from "@/stores/hunt-store";
-import { ingestLog, pickLogFile } from "@/modules/log/ipc";
+import { ingestLogs, pickLogFiles } from "@/modules/log/ipc";
 import { logKeys } from "@/modules/log/queries";
 import { AlertDetail } from "./AlertDetail";
 import { AlertInbox } from "./AlertInbox";
@@ -72,10 +72,10 @@ export function HuntModule() {
   async function onOpenLog() {
     setOpeningLog(true);
     try {
-      const path = await pickLogFile();
-      if (!path) return;
-      const result = await ingestLog(path);
-      setLogLoaded(path, result.stats, result.counts);
+      const paths = await pickLogFiles();
+      if (paths.length === 0) return;
+      const result = await ingestLogs(paths);
+      setLogLoaded(result.stats.source_path, result.stats, result.counts, result.sources);
       await queryClient.invalidateQueries({ queryKey: logKeys.all });
       notifications.show({
         title: "Log ingested",

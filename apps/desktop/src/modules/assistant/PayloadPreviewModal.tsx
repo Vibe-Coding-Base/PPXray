@@ -28,6 +28,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 
 import { ErrorBlock, LoadingBlock } from "@/components/shell/States";
+import { useProfileStore } from "@/stores/profile-store";
 import { llmPreview, type Task } from "./ipc";
 
 interface Props {
@@ -50,10 +51,14 @@ export function PayloadPreviewModal({
   approving,
 }: Props) {
   const clipboard = useClipboard({ timeout: 1500 });
+  // The preview must show what a send would carry, and a send carries the
+  // open profile.
+  const profile = useProfileStore((s) => s.profile);
+  const revision = useProfileStore((s) => s.revision);
 
   const query = useQuery({
-    queryKey: ["llm", "preview", task, input],
-    queryFn: () => llmPreview(task, input),
+    queryKey: ["llm", "preview", task, input, revision],
+    queryFn: () => llmPreview(task, input, profile),
     enabled: opened,
     // The payload depends on the open log's schema and on settings, both of
     // which can change between openings. Never serve a stale one.

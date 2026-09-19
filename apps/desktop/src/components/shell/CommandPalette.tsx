@@ -37,7 +37,7 @@ import { pickAndOpenProfile, pickAndSaveProfile, saveProfileToPath } from "@/ipc
 import { useProfileStoreShallow } from "@/stores/profile-store";
 import { useLogStoreShallow } from "@/stores/log-store";
 import { useHuntStoreShallow } from "@/stores/hunt-store";
-import { ingestLog, pickLogFile } from "@/modules/log/ipc";
+import { ingestLogs, pickLogFiles } from "@/modules/log/ipc";
 import { checkForUpdates } from "@/hooks/use-updater";
 import { useRunHunt } from "@/modules/hunt/queries";
 
@@ -163,15 +163,15 @@ export function CommandPalette({ setActiveModule, showShortcuts, showAbout }: Pr
       },
       {
         id: "log-open",
-        label: "Open log file…",
-        description: "Stream-parse a Proxifier .txt log",
+        label: "Open log files…",
+        description: "Stream-parse a Proxifier Log.txt and its archives",
         leftSection: <IconUpload size="1.1rem" />,
         onClick: async () => {
           try {
-            const path = await pickLogFile();
-            if (!path) return;
-            const result = await ingestLog(path);
-            logState.setLoaded(path, result.stats, result.counts);
+            const paths = await pickLogFiles();
+            if (paths.length === 0) return;
+            const result = await ingestLogs(paths);
+            logState.setLoaded(result.stats.source_path, result.stats, result.counts, result.sources);
             setActiveModule("log");
             notifications.show({
               message: `${Number(result.stats.total_events).toLocaleString()} events ingested`,

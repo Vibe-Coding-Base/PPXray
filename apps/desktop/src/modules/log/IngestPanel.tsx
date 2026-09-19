@@ -1,29 +1,18 @@
-import {
-  Button,
-  Card,
-  Code,
-  Group,
-  Progress,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Button, Card, Code, Group, Progress, Stack, Text, Tooltip } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import {
-  IconFolderOpen,
-  IconPlug,
-  IconRefresh,
-} from "@tabler/icons-react";
+import { IconFolderOpen, IconPlug, IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { ModuleEmptyState } from "@/components/shell/States";
 import { useLogStoreShallow } from "@/stores/log-store";
-import { ingestLog, onIngestProgress, pickLogFile } from "./ipc";
+import { appendLogs, ingestLogs, onIngestProgress, pickLogFiles, type OpenLogResult } from "./ipc";
 import { logKeys } from "./queries";
 
 export function IngestPanel() {
   const {
     sourcePath,
+    sources,
     ingestStats,
     progress,
     setLoaded,
@@ -31,6 +20,7 @@ export function IngestPanel() {
     unload,
   } = useLogStoreShallow((s) => ({
     sourcePath: s.sourcePath,
+    sources: s.sources,
     ingestStats: s.ingestStats,
     progress: s.progress,
     setLoaded: s.setLoaded,
@@ -58,11 +48,8 @@ export function IngestPanel() {
     };
   }, [setProgress]);
 
-  /**
-   * Ingest a specific file. Split out of `onOpen` so the bundled-sample
-   * button runs the identical path rather than a second copy of it.
-   */
-  async function onIngestPath(path: string) {
+  /** Every way of loading runs through here: open, add, re-ingest. */
+  async function load(title: string, run: () => Promise<OpenLogResult>) {
     try {
       setBusy(true);
       setProgress({
@@ -73,18 +60,19 @@ export function IngestPanel() {
         elapsed_ms: 0n,
         mb_per_sec: 0,
       });
-      const result = await ingestLog(path);
-      setLoaded(path, result.stats, result.counts);
+      const result = await run();
+      setLoaded(result.stats.source_path, result.stats, result.counts, result.sources);
       await invalidateLogQueries();
+      const files = result.stats.source_paths.length;
       notifications.show({
-        title: "Log ingested",
-        message: `${Number(result.stats.total_events).toLocaleString()} events - ${(
-          Number(result.stats.duration_ms) / 1000
-        ).toFixed(1)}s - ${result.stats.mb_per_sec.toFixed(1)} MB/s`,
+        title,
+        message: `${Number(result.stats.total_events).toLocaleString()} events${
+          files > 1 ? ` from ${files} files` : ""
+        } - ${(Number(result.stats.duration_ms) / 1000).toFixed(1)}s - ${result.stats.mb_per_sec.toFixed(1)} MB/s`,
         color: "teal",
       });
     } catch (err) {
-      notifications.show({ title: "Ingest failed", message: String(err), color: "red" });
+      notifications.show({ title: `${title} failed`, message: String(err), color: "red" });
     } finally {
       setBusy(false);
       setProgress(null);
@@ -92,30 +80,21 @@ export function IngestPanel() {
   }
 
   async function onOpen() {
-    const path = await pickLogFile();
+    const paths = await pickLogFiles();
     // A cancelled picker is not a failure.
-    if (!path) return;
-    await onIngestPath(path);
+    if (paths.length === 0) return;
+    await load("Log ingested", () => ingestLogs(paths));
+  }
+
+  async function onAdd() {
+    const paths = await pickLogFiles();
+    if (paths.length === 0) return;
+    await load("Logs added", () => appendLogs(paths));
   }
 
   async function onReingest() {
-    if (!sourcePath) return;
-    setBusy(true);
-    try {
-      const result = await ingestLog(sourcePath);
-      setLoaded(sourcePath, result.stats, result.counts);
-      await invalidateLogQueries();
-      notifications.show({
-        title: "Re-ingested",
-        message: `${Number(result.stats.total_events).toLocaleString()} events`,
-        color: "teal",
-      });
-    } catch (err) {
-      notifications.show({ title: "Re-ingest failed", message: String(err), color: "red" });
-    } finally {
-      setBusy(false);
-      setProgress(null);
-    }
+    if (sources.length === 0) return;
+    await load("Re-ingested", () => ingestLogs(sources));
   }
 
   if (!sourcePath && !progress) {
@@ -125,9 +104,11 @@ export function IngestPanel() {
         title="No log loaded"
         description={
           <>
-            Open a Proxifier <Code>.txt</Code> log to stream-parse it into a
-            local DuckDB analysis store. First ingest of a 30&nbsp;MB file
-            completes in a few seconds.
+            Open a Proxifier <Code>Log.txt</Code> to stream-parse it into a
+            local DuckDB analysis store. Select its archives
+            (<Code>Log.txt.1</Code>, <Code>Log.txt.2</Code>, …) with it to
+            analyse them as one. First ingest of a 30&nbsp;MB file completes
+            in a few seconds.
           </>
         }
         actions={
@@ -137,7 +118,7 @@ export function IngestPanel() {
             onClick={onOpen}
             loading={busy}
           >
-            Open log file
+            Open log files
           </Button>
         }
       />
@@ -179,11 +160,34 @@ export function IngestPanel() {
     );
   }
 
+  const archives = sources.length - 1;
   return (
     <Group gap="sm" px="sm" py="xs" wrap="nowrap" style={{ overflow: "hidden" }}>
-      <Text size="xs" c="dimmed" className="mono" style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={sourcePath ?? undefined}>
-        {sourcePath}
-      </Text>
+      <Tooltip
+        withArrow
+        multiline
+        disabled={sources.length <= 1}
+        label={
+          <Stack gap={2}>
+            {sources.map((s) => (
+              <Text key={s} size="xs" className="mono">
+                {s}
+              </Text>
+            ))}
+          </Stack>
+        }
+      >
+        <Text
+          size="xs"
+          c="dimmed"
+          className="mono"
+          style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          title={sources.length <= 1 ? (sourcePath ?? undefined) : undefined}
+        >
+          {sourcePath}
+          {archives > 0 ? ` + ${archives} more file${archives === 1 ? "" : "s"}` : ""}
+        </Text>
+      </Tooltip>
       {ingestStats && (
         <Text size="xs" c="dimmed" className="mono">
           {Number(ingestStats.total_events).toLocaleString()} events - {(Number(ingestStats.duration_ms) / 1000).toFixed(1)}s
@@ -198,6 +202,17 @@ export function IngestPanel() {
       >
         Re-ingest
       </Button>
+      <Tooltip label="Add more files to this analysis, such as older archives" withArrow>
+        <Button
+          size="xs"
+          variant="subtle"
+          leftSection={<IconPlus size="0.85rem" />}
+          onClick={onAdd}
+          loading={busy}
+        >
+          Add logs
+        </Button>
+      </Tooltip>
       <Button
         size="xs"
         variant="subtle"
