@@ -221,6 +221,11 @@ function RowContainer({
   children: React.ReactNode;
 }) {
   const { setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  // The virtualizer places the row with `transformTop`; during a drag dnd-kit
+  // hands every row a transform of its own (0 or ±one row, to make room).
+  // The two must be summed. Using the drag transform alone, as this once
+  // did, put every row at y≈0 the moment a drag began.
+  const y = transformTop + (transform?.y ?? 0);
   return (
     <div
       ref={setNodeRef}
@@ -229,9 +234,12 @@ function RowContainer({
         top: 0,
         left: 0,
         width: "100%",
-        transform: CSS.Transform.toString(
-          transform ? { ...transform, x: 0 } : { x: 0, y: transformTop, scaleX: 1, scaleY: 1 },
-        ),
+        transform: CSS.Transform.toString({
+          x: 0,
+          y,
+          scaleX: transform?.scaleX ?? 1,
+          scaleY: transform?.scaleY ?? 1,
+        }),
         transition: transition ?? undefined,
         zIndex: isDragging ? 10 : 0,
         opacity: isDragging ? 0.85 : 1,

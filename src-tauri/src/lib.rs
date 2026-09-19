@@ -82,6 +82,7 @@ pub fn run() {
             commands::llm::llm_test_connection,
             commands::llm::llm_ask,
             commands::llm::llm_reset_chat,
+            commands::llm::llm_stop,
             commands::llm::llm_audit_entries,
             commands::llm::llm_clear_audit,
         ])

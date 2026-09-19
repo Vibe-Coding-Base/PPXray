@@ -367,6 +367,25 @@ export function AssistantSettings() {
                 onBlur={() => void commit(draft)}
               />
             </Tooltip>
+            <Tooltip
+              withArrow
+              multiline
+              w={rem(280)}
+              label="A backstop for a model stuck in a loop while nobody is watching: after this many queries and rule tests in one question, the assistant is asked to answer with what it has. Use Stop to end a question yourself; this should be high enough that honest work never reaches it."
+            >
+              <NumberInput
+                label="Tool calls per question"
+                min={1}
+                max={1000}
+                w={rem(160)}
+                value={draft.max_tool_steps}
+                disabled={busy}
+                onChange={(v) =>
+                  setDraft({ ...draft, max_tool_steps: Math.max(1, Number(v) || 1) })
+                }
+                onBlur={() => void commit(draft)}
+              />
+            </Tooltip>
             <Group gap="xs">
               <Button
                 variant="default"

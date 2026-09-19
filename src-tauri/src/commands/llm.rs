@@ -27,13 +27,6 @@ use tracing::instrument;
 use crate::commands::logs::{blocking, optional_store};
 use crate::{credentials, error::AppError, settings, state::AppState};
 
-/// How many tool round-trips one question may take before we stop.
-///
-/// Each is a paid request. Six is enough for "ask, look, refine, look,
-/// confirm, answer" and short enough that a model stuck in a loop costs
-/// cents rather than dollars.
-const MAX_TOOL_STEPS: usize = 6;
-
 /// Audit-log file name, under app-data next to `settings.json`.
 const AUDIT_FILE: &str = "llm-audit.jsonl";
 
@@ -87,6 +80,18 @@ pub struct AssistantReply {
     /// Always true. Present as a field rather than a UI constant so it
     /// cannot be forgotten in one of the places a reply is rendered.
     pub unverified: bool,
+    /// The question was cut short — the user pressed Stop, or the tool-call
+    /// limit was reached — and the answer is the model's best effort from
+    /// what it had gathered.
+    pub cut_short: Option<CutShort>,
+}
+
+/// Why a question ended before the model was done.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CutShort {
+    Stopped,
+    ToolLimit,
 }
 
 /// Which prompt a request uses. Also the `purpose` tag in the audit log.
@@ -363,6 +368,32 @@ pub async fn llm_preview(
 // ---------------------------------------------------------------------------
 
 /// Forget a conversation's transcript. `None` forgets every one of them.
+/// Stop the question running in `conversation_id` after its current
+/// round. The request already on the wire is not interrupted — a
+/// half-received answer is worth less than the tokens it cost — and the
+/// model still gets its wrap-up turn.
+#[tauri::command]
+pub async fn llm_stop(
+    conversation_id: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), AppError> {
+    let thread = conversation_id.unwrap_or_else(|| "default".to_string());
+    let mut flags = state.llm_cancelled.lock().map_err(|_| AppError::Other("lock".into()))?;
+    flags.insert(thread);
+    Ok(())
+}
+
+fn is_cancelled(state: &State<'_, AppState>, thread: &str) -> Result<bool, AppError> {
+    let flags = state.llm_cancelled.lock().map_err(|_| AppError::Other("lock".into()))?;
+    Ok(flags.contains(thread))
+}
+
+fn clear_cancel(state: &State<'_, AppState>, thread: &str) -> Result<(), AppError> {
+    let mut flags = state.llm_cancelled.lock().map_err(|_| AppError::Other("lock".into()))?;
+    flags.remove(thread);
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn llm_reset_chat(
     conversation_id: Option<String>,
@@ -429,8 +460,16 @@ pub async fn llm_ask(
     let mut output_tokens = 0u32;
     let mut text = String::new();
     let mut thinking = String::new();
+    let mut cut_short: Option<CutShort> = None;
+    // The user's Stop button is the real stop; the limit is a backstop for
+    // a model stuck in a loop while nobody is watching, since every round
+    // re-sends the whole transcript at the provider's prices. Either way the
+    // model gets one last turn with no tools, so the reply is an answer
+    // rather than a dangling "let me check".
+    let max_tool_steps = cfg.max_tool_steps.max(1) as usize;
+    clear_cancel(&state, &thread)?;
 
-    for round in 0..=MAX_TOOL_STEPS {
+    for round in 0..=max_tool_steps {
         let request =
             ChatRequest { system: system.clone(), turns: turns.clone(), tools: tools.clone() };
         let completion = client
@@ -450,17 +489,55 @@ pub async fn llm_ask(
             break;
         }
 
-        // The budget is spent. Tell the model so in-band rather than
-        // truncating: it can still answer from what it already has.
-        if round == MAX_TOOL_STEPS {
-            text = if completion.text.is_empty() {
-                format!(
-                    "Stopped after {MAX_TOOL_STEPS} queries without reaching a conclusion. \
-                     The queries and their results are below; ask a narrower question to \
-                     continue."
-                )
+        // Ending early — the user pressed Stop, or the model is still asking
+        // for tools at the limit. Dropping the calls and showing the model's
+        // text left the user with "Let me verify…" and nothing after it.
+        // Instead: record the calls as refused, say why in-band, and give the
+        // model one turn with no tools to answer.
+        let stopped = is_cancelled(&state, &thread)?;
+        if stopped || round == max_tool_steps {
+            let why = if stopped { CutShort::Stopped } else { CutShort::ToolLimit };
+            cut_short = Some(why);
+            turns.push(Turn::Assistant {
+                text: completion.text.clone(),
+                calls: completion.calls.clone(),
+            });
+            let reason = match why {
+                CutShort::Stopped => "the user stopped this question".to_string(),
+                CutShort::ToolLimit => {
+                    format!("the limit of {max_tool_steps} tool calls for one question is reached")
+                }
+            };
+            for call in &completion.calls {
+                turns.push(Turn::ToolResult {
+                    id: call.id.clone(),
+                    name: call.name.clone(),
+                    content: format!("Not run: {reason}."),
+                    is_error: true,
+                });
+            }
+            turns.push(Turn::User(format!(
+                "No more tool calls: {reason}. Answer now from what you have already \
+                 gathered. Be clear about what is established and what is not, and say \
+                 which check you would have run next so the user can ask for it."
+            )));
+            let request =
+                ChatRequest { system: system.clone(), turns: turns.clone(), tools: Vec::new() };
+            let last = client
+                .send(&cfg, key.as_deref(), task.tag(), &request)
+                .await
+                .map_err(|e| AppError::Other(e.to_string()))?;
+            input_tokens = input_tokens.saturating_add(last.usage.input_tokens.unwrap_or(0));
+            output_tokens = output_tokens.saturating_add(last.usage.output_tokens.unwrap_or(0));
+            if !last.thinking.is_empty() {
+                thinking = last.thinking.clone();
+            }
+            text = if last.text.trim().is_empty() {
+                "Stopped without reaching a conclusion. The queries and their results \
+                 are below; ask a narrower question to continue."
+                    .to_string()
             } else {
-                completion.text.clone()
+                last.text
             };
             turns.push(Turn::Assistant { text: text.clone(), calls: Vec::new() });
             break;
@@ -493,6 +570,7 @@ pub async fn llm_ask(
         input_tokens: Some(input_tokens),
         output_tokens: Some(output_tokens),
         unverified: true,
+        cut_short,
     })
 }
 

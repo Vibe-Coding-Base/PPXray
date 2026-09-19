@@ -43,6 +43,15 @@ front of it.
   1 rule test · results stayed on this machine` — and open on click. The
   answer is what the reader came for; the evidence is one click away, never
   hidden.
+- **Stop.** A question in flight can be stopped; the model gets one turn
+  with no tools to answer from what it had gathered, and the reply says it
+  was cut short. The per-question tool-call limit that used to end a
+  question silently — showing the model's "let me verify…" and dropping the
+  calls it wanted — is now a setting (default 100) that ends the same way:
+  with an answer, and a note saying why.
+- Dragging a rule no longer stacks every other row at the top of the table:
+  the virtualizer's position and the drag transform were being used one
+  *instead of* the other rather than summed.
 
 ### Several log files in one analysis
 

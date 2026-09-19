@@ -62,6 +62,8 @@ export interface AssistantReply {
   steps: AgentStep[];
   input_tokens: number | null;
   output_tokens: number | null;
+  /** Set when the question ended early; the answer is a best effort from what was gathered. */
+  cut_short: "stopped" | "tool-limit" | null;
   unverified: boolean;
 }
 
@@ -104,6 +106,10 @@ export const llmAsk = (
   conversationId: string | undefined,
   profile: Profile | null,
 ) => invoke<AssistantReply>("llm_ask", { task, input, conversationId, profile });
+
+/** Stop the question running in this conversation after its current round. */
+export const llmStop = (conversationId?: string) =>
+  invoke<void>("llm_stop", { conversationId });
 
 /** Forget one transcript, or every one of them when no id is given. */
 export const llmResetChat = (conversationId?: string) =>

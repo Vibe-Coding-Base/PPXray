@@ -21,6 +21,13 @@ base_url: string, model: string, data_scope: DataScope,
  */
 max_result_rows: number, 
 /**
+ * How many tool calls one question may make before the model is asked
+ * to answer with what it has. The user's Stop button is the real stop;
+ * this is the backstop for a model stuck in a loop while nobody is
+ * watching, so it is set high enough that honest work never reaches it.
+ */
+max_tool_steps: number, 
+/**
  * Whether the user has seen the payload preview at least once. The
  * first send is gated on it; afterwards the preview stays available
  * but stops interrupting.

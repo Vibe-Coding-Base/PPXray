@@ -108,6 +108,12 @@ pub struct LlmSettings {
     /// Cap on rows handed back to the model from a locally-executed query.
     #[serde(default = "default_row_limit")]
     pub max_result_rows: u32,
+    /// How many tool calls one question may make before the model is asked
+    /// to answer with what it has. The user's Stop button is the real stop;
+    /// this is the backstop for a model stuck in a loop while nobody is
+    /// watching, so it is set high enough that honest work never reaches it.
+    #[serde(default = "default_tool_steps")]
+    pub max_tool_steps: u32,
     /// Whether the user has seen the payload preview at least once. The
     /// first send is gated on it; afterwards the preview stays available
     /// but stops interrupting.
@@ -123,6 +129,10 @@ fn default_row_limit() -> u32 {
     200
 }
 
+fn default_tool_steps() -> u32 {
+    100
+}
+
 impl Default for LlmSettings {
     fn default() -> Self {
         Self {
@@ -132,6 +142,7 @@ impl Default for LlmSettings {
             model: String::new(),
             data_scope: DataScope::default(),
             max_result_rows: default_row_limit(),
+            max_tool_steps: default_tool_steps(),
             reviewed_payload: false,
         }
     }

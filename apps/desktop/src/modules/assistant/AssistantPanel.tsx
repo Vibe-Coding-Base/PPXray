@@ -30,6 +30,7 @@ import {
   IconEyeOff,
   IconMessage2,
   IconPlayerPlay,
+  IconPlayerStop,
   IconRobot,
   IconSettings,
   IconStethoscope,
@@ -40,7 +41,7 @@ import { EmptyBlock, ErrorBlock, ModuleEmptyState } from "@/components/shell/Sta
 import { useLogStore } from "@/stores/log-store";
 import { useProfileStore } from "@/stores/profile-store";
 import { useAssistantStore, type Exchange } from "@/stores/assistant-store";
-import type { AgentStep } from "./ipc";
+import { llmStop, type AgentStep } from "./ipc";
 import { Markdown } from "./Markdown";
 import { PayloadPreviewModal } from "./PayloadPreviewModal";
 import { ResultTable } from "./ResultTable";
@@ -276,14 +277,23 @@ export function AssistantPanel({ conversationId, onOpenSettings, compact }: Prop
               }
             }}
           />
-          <Button
-            leftSection={<IconPlayerPlay size="0.85rem" />}
-            loading={busy}
-            disabled={!question.trim()}
-            onClick={() => submit("chat", question)}
-          >
-            Ask
-          </Button>
+          {busy ? (
+            <Button
+              variant="default"
+              leftSection={<IconPlayerStop size="0.85rem" />}
+              onClick={() => void llmStop(conversationId)}
+            >
+              Stop
+            </Button>
+          ) : (
+            <Button
+              leftSection={<IconPlayerPlay size="0.85rem" />}
+              disabled={!question.trim()}
+              onClick={() => submit("chat", question)}
+            >
+              Ask
+            </Button>
+          )}
         </Group>
       </Stack>
 
@@ -419,6 +429,15 @@ function ExchangeView({ exchange }: { exchange: Exchange }) {
             </Box>
           )}
 
+          {reply.cut_short && (
+            <Alert variant="light" color="yellow" p="xs" icon={<IconAlertTriangle size="1rem" />}>
+              <Text size="sm">
+                {reply.cut_short === "stopped"
+                  ? "Stopped. The answer below is from what the assistant had gathered when you pressed Stop."
+                  : "The assistant reached the tool-call limit for this question before it was done. The answer below is from what it had gathered; ask a narrower follow-up to continue, or raise the limit under Settings."}
+              </Text>
+            </Alert>
+          )}
           {reply.text && (
             <Alert variant="light" color="blue" p="sm">
               <Markdown>{reply.text}</Markdown>

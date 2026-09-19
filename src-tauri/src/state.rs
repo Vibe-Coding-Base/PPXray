@@ -2,7 +2,7 @@
 //! future modules (log DB connection pool, detection engine handles, ingest
 //! job registry) will live here.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex, OnceLock};
 
 use llm_bridge::{LlmClient, provider::Turn};
@@ -36,6 +36,10 @@ pub struct AppState {
     /// second copy outliving the session. Cleared when the provider or the
     /// privacy level changes.
     pub llm_chats: Mutex<HashMap<String, Vec<Turn>>>,
+    /// Conversations whose in-flight question the user asked to stop. The
+    /// loop checks between tool rounds; a request already on the wire runs
+    /// to completion.
+    pub llm_cancelled: Mutex<HashSet<String>>,
 }
 
 impl AppState {
