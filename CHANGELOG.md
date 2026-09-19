@@ -49,15 +49,24 @@ front of it.
   question silently — showing the model's "let me verify…" and dropping the
   calls it wanted — is now a setting (default 100) that ends the same way:
   with an answer, and a note saying why.
-- Dragging a rule no longer stacks every other row at the top of the table:
-  the virtualizer's position and the drag transform were being used one
-  *instead of* the other rather than summed.
+- Dragging a rule no longer stacks every other row at the top of the table,
+  and the rows below now slide out of the way as the drag passes them. Rows
+  were positioned with a CSS transform, which dnd-kit ignores when it
+  measures — so every row measured at the same place.
+- **Change markers.** Each rule that differs from what is on disk is tagged
+  `new`, `edited` or `moved` (a rule can be both of the last two), and the
+  header counts them along with deletions. Cleared on save. A rule has no
+  identity of its own in a `.ppx`, so each gets a client-side id that
+  survives editing and reordering but never reaches the file; "moved" is
+  computed as "not in the longest common subsequence with the saved order",
+  so one move marks one rule rather than its neighbours too.
 
 ### Several log files in one analysis
 
 Proxifier rotates its log to `Log.txt.1`, `Log.txt.2`, … and the picker did
-not offer them. It now lists them beside `Log.txt`, accepts several at once,
-and reads them oldest-first so ids and timestamps agree. **Add logs** appends
+not offer them. It now matches them with one `*.txt.*` pattern — no ceiling
+on the archive number, one short entry in the file-type list — accepts
+several at once, and reads them oldest-first so ids and timestamps agree. **Add logs** appends
 more files to the analysis that is open — ids continue rather than restart,
 so existing alerts keep pointing at the right rows — and the header shows
 `Log.txt + 2 more files` with the full list on hover.

@@ -42,6 +42,7 @@ export interface EnrichedShadow {
   reason: ShadowReason;
 }
 import { useProfileStoreShallow } from "@/stores/profile-store";
+import { diffRules } from "./rule-changes";
 
 import { BulkToolbar } from "./BulkToolbar";
 import { ProfileBar } from "./ProfileBar";
@@ -69,8 +70,12 @@ export function RuleModule() {
     setEnabledMany,
     undo,
     redo,
+    baselineRules,
+    revision,
   } = useProfileStoreShallow((s) => ({
     profile: s.profile,
+    baselineRules: s.baselineRules,
+    revision: s.revision,
     selectedIndices: s.selectedIndices,
     detailIndex: s.detailIndex,
     openDetail: s.openDetail,
@@ -84,6 +89,15 @@ export function RuleModule() {
 
   const [query, setQuery] = useState("");
   const [testerOpen, setTesterOpen] = useState(false);
+
+  // Per-rule new / edited / moved markers against what is on disk. Keyed on
+  // the revision counter rather than the rules array for the same reason
+  // the exposure query is.
+  const changes = useMemo(
+    () => diffRules(baselineRules, profile?.rules ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [baselineRules, revision],
+  );
   const [shadowPairs, setShadowPairs] = useState<ShadowPair[]>([]);
 
   // Apply a DSL query that arrived from outside (cross-tab pivot, command
@@ -279,6 +293,23 @@ export function RuleModule() {
           <Badge variant="default">
             {visibleRows.length} visible
           </Badge>
+          {changes.total > 0 && (
+            <Tooltip
+              withArrow
+              label={[
+                changes.counts.new > 0 && `${changes.counts.new} new`,
+                changes.counts.edited > 0 && `${changes.counts.edited} edited`,
+                changes.counts.moved > 0 && `${changes.counts.moved} moved`,
+                changes.counts.deleted > 0 && `${changes.counts.deleted} deleted`,
+              ]
+                .filter(Boolean)
+                .join(" · ") + " since the profile was loaded or saved"}
+            >
+              <Badge size="sm" color="blue" variant="light">
+                {changes.total} changed
+              </Badge>
+            </Tooltip>
+          )}
           {overshadows.size > 0 && (
             <Tooltip
               label={`${overshadows.size} rule(s) are overshadowed by an earlier rule and will never fire`}
@@ -364,7 +395,7 @@ export function RuleModule() {
           <SplitGroup direction="horizontal" autoSaveId="rules-split">
             <SplitPanel defaultSize={66} minSize={30}>
               <Box style={{ height: "100%", display: "flex", padding: 8 }}>
-                <RuleTable rows={visibleRows} overshadows={overshadows} />
+                <RuleTable rows={visibleRows} overshadows={overshadows} changes={changes.byId} />
               </Box>
             </SplitPanel>
             <SplitHandle orientation="vertical" />
@@ -378,7 +409,7 @@ export function RuleModule() {
           </SplitGroup>
         ) : (
           <Box style={{ height: "100%", display: "flex", padding: 8 }}>
-            <RuleTable rows={visibleRows} overshadows={overshadows} />
+            <RuleTable rows={visibleRows} overshadows={overshadows} changes={changes.byId} />
           </Box>
         )}
       </Box>

@@ -44,6 +44,7 @@ import {
 import { useRem } from "@/hooks/use-row-height";
 import { useProfileStoreShallow } from "@/stores/profile-store";
 import type { EnrichedShadow } from "./RuleModule";
+import { ruleId, type RuleChange } from "./rule-changes";
 
 /** 40px at the original 16px base, kept proportional as the user
  *  changes the interface size (see `hooks/use-row-height.ts`). */
@@ -78,9 +79,11 @@ interface RuleTableProps {
   /** Filtered rows, each with its ORIGINAL index in the profile. */
   rows: { rule: Rule; index: number }[];
   overshadows: Map<number, EnrichedShadow>;
+  /** new / edited / moved, by rule id. */
+  changes: Map<string, Set<RuleChange>>;
 }
 
-export function RuleTable({ rows, overshadows }: RuleTableProps) {
+export function RuleTable({ rows, overshadows, changes }: RuleTableProps) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const colWidths = useColumnWidths("rules-table", COLUMN_SPEC);
   const gridContext = useMemo(
@@ -185,6 +188,7 @@ export function RuleTable({ rows, overshadows }: RuleTableProps) {
                     selected={selectedIndices.has(index)}
                     active={detailIndex === index}
                     shadow={shadow ?? null}
+                    changes={changes.get(ruleId(rule) ?? "")}
                     onToggleSelect={(mode) => toggleSelection(index, mode)}
                     onToggleEnabled={() => toggleRule(index)}
                     onOpenDetail={() => openDetail(index)}
@@ -221,25 +225,21 @@ function RowContainer({
   children: React.ReactNode;
 }) {
   const { setNodeRef, transform, transition, isDragging } = useSortable({ id });
-  // The virtualizer places the row with `transformTop`; during a drag dnd-kit
-  // hands every row a transform of its own (0 or ±one row, to make room).
-  // The two must be summed. Using the drag transform alone, as this once
-  // did, put every row at y≈0 the moment a drag began.
-  const y = transformTop + (transform?.y ?? 0);
+  // The row's place comes from `top`, not from a transform. dnd-kit measures
+  // rows with transforms ignored — so that its own drag translate cannot
+  // corrupt the measurement — which means a row positioned by transform
+  // measures at y=0, every row measures the same, and the sort strategy can
+  // neither tell which row is under the pointer nor shift the others out of
+  // the way. The transform is left to dnd-kit alone.
   return (
     <div
       ref={setNodeRef}
       style={{
         position: "absolute",
-        top: 0,
+        top: transformTop,
         left: 0,
         width: "100%",
-        transform: CSS.Transform.toString({
-          x: 0,
-          y,
-          scaleX: transform?.scaleX ?? 1,
-          scaleY: transform?.scaleY ?? 1,
-        }),
+        transform: transform ? CSS.Transform.toString({ ...transform, x: 0 }) : undefined,
         transition: transition ?? undefined,
         zIndex: isDragging ? 10 : 0,
         opacity: isDragging ? 0.85 : 1,
@@ -322,6 +322,7 @@ interface RuleRowProps {
   selected: boolean;
   active: boolean;
   shadow: EnrichedShadow | null;
+  changes: Set<RuleChange> | undefined;
   onToggleSelect: (mode: "single" | "toggle" | "range") => void;
   onToggleEnabled: () => void;
   onOpenDetail: () => void;
@@ -333,6 +334,7 @@ function RuleRow({
   selected,
   active,
   shadow,
+  changes,
   onToggleSelect,
   onToggleEnabled,
   onOpenDetail,
@@ -433,6 +435,7 @@ function RuleRow({
         >
           {rule.name}
         </Text>
+        {changes && <ChangeChips changes={changes} />}
         {shadow && <ShadowChip shadow={shadow} />}
       </Group>
 
@@ -469,6 +472,25 @@ function ActionBadge({ action }: { action: RuleAction }) {
 // ---------------------------------------------------------------------------
 // Shadow badge
 // ---------------------------------------------------------------------------
+
+/** Unsaved-change markers. A rule can be both edited and moved. */
+function ChangeChips({ changes }: { changes: Set<RuleChange> }) {
+  const chip = (change: RuleChange, color: string, hint: string) =>
+    changes.has(change) ? (
+      <Tooltip key={change} label={hint} withArrow openDelay={300}>
+        <Badge size="sm" variant="light" color={color} style={{ flexShrink: 0 }}>
+          {change}
+        </Badge>
+      </Tooltip>
+    ) : null;
+  return (
+    <>
+      {chip("new", "teal", "Added since the profile was loaded or saved")}
+      {chip("edited", "blue", "A field differs from what is on disk")}
+      {chip("moved", "grape", "In a different position than on disk")}
+    </>
+  );
+}
 
 function ShadowChip({ shadow }: { shadow: EnrichedShadow }) {
   const { reason } = shadow;

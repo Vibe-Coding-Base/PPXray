@@ -23,18 +23,18 @@ export interface OpenLogResult {
 // --- Ingest / lifecycle ----------------------------------------------------
 
 /**
- * Proxifier rotates its log as `Log.txt.1`, `Log.txt.2`, … — the extension a
- * file dialog sees is the number, so those are listed alongside `txt`. The
- * range is generous rather than exact; the last filter catches the rest.
+ * One or more log files, or an empty list when the picker was cancelled.
+ *
+ * Proxifier rotates its log as `Log.txt.1`, `Log.txt.2`, … — to a file
+ * dialog the extension is the number, so `txt.*` is passed as a pattern
+ * rather than a list of numbers: the dialog builds `*.txt.*` from it, which
+ * matches every archive with no ceiling and shows as one short entry.
  */
-const ARCHIVE_NUMBERS = Array.from({ length: 50 }, (_, i) => String(i + 1));
-
-/** One or more log files, or an empty list when the picker was cancelled. */
 export async function pickLogFiles(): Promise<string[]> {
   const picked = await openDialog({
     multiple: true,
     filters: [
-      { name: "Proxifier logs (Log.txt, Log.txt.1, …)", extensions: ["txt", "log", ...ARCHIVE_NUMBERS] },
+      { name: "Proxifier logs", extensions: ["txt", "log", "txt.*"] },
       { name: "All files", extensions: ["*"] },
     ],
   });

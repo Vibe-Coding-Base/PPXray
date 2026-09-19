@@ -4,6 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import { produce } from "immer";
 
 import type { Profile, Rule } from "@ppxray/ipc-schema";
+import { withIds } from "@/modules/rules/rule-changes";
 
 /** A single rule mutation captured as an inverse snapshot. Only the `rules`
  *  array is kept: nothing else in the profile is editable from the UI. */
@@ -19,6 +20,8 @@ export interface ProfileSlice {
   profile: Profile | null;
   path: string | null;
   dirty: boolean;
+  /** The rules as loaded or last saved, for the per-rule change markers. */
+  baselineRules: Rule[];
 
   /** Bumped on every change to `profile`.
    *
@@ -79,8 +82,11 @@ function createProfileStore(): StoreApi<ProfileSlice> {
     ): void {
       const state = get();
       if (!state.profile) return;
-      const nextRules = mutate(state.profile.rules);
+      let nextRules = mutate(state.profile.rules);
       if (nextRules === state.profile.rules) return; // no-op
+      // Anything the mutation created from scratch gets its identity here,
+      // so the change markers can tell a new rule from a moved one.
+      nextRules = withIds(nextRules);
 
       const undo = state.undoStack.concat({ rules: state.profile.rules, label });
       if (undo.length > MAX_HISTORY) undo.shift();
@@ -99,6 +105,7 @@ function createProfileStore(): StoreApi<ProfileSlice> {
       profile: null,
       path: null,
       dirty: false,
+      baselineRules: [],
       revision: 0,
       selectedIndices: new Set<number>(),
       detailIndex: null,
@@ -106,22 +113,29 @@ function createProfileStore(): StoreApi<ProfileSlice> {
       redoStack: [],
 
       setLoaded: (profile, path) =>
-        set((s) => ({
-          profile,
-          path,
-          dirty: false,
-          revision: s.revision + 1,
-          selectedIndices: new Set(),
-          detailIndex: null,
-          undoStack: [],
-          redoStack: [],
-        })),
-      markSaved: (path) => set((s) => ({ ...s, path, dirty: false })),
+        set((s) => {
+          const rules = withIds(profile.rules);
+          return {
+            profile: { ...profile, rules },
+            path,
+            dirty: false,
+            baselineRules: rules,
+            revision: s.revision + 1,
+            selectedIndices: new Set(),
+            detailIndex: null,
+            undoStack: [],
+            redoStack: [],
+          };
+        }),
+      // What is on disk is now what is on screen, so the markers clear.
+      markSaved: (path) =>
+        set((s) => ({ ...s, path, dirty: false, baselineRules: s.profile?.rules ?? [] })),
       clear: () =>
         set((s) => ({
           profile: null,
           path: null,
           dirty: false,
+          baselineRules: [],
           revision: s.revision + 1,
           selectedIndices: new Set(),
           detailIndex: null,
