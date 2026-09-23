@@ -129,7 +129,10 @@ fn ampersand_escape_round_trip() {
     let first = parse_str(xml).unwrap();
     assert_eq!(first.rules[0].name, "A & B <test>");
     let written = to_xml_string(&first).unwrap();
-    assert!(written.contains("A &amp; B &lt;test&gt;"), "XML output: {written}");
+    // `&` and `<` must be entities, or the file is not XML. `>` need not be,
+    // and is left literal — see `serializer::escape_text` for why the set of
+    // escapes is the minimum XML requires rather than the maximum allowed.
+    assert!(written.contains("A &amp; B &lt;test>"), "XML output: {written}");
     let second = parse_str(&written).unwrap();
     assert_eq!(first, second);
 }

@@ -23,9 +23,9 @@ pub(crate) fn serialize(profile: &Profile) -> PpxResult<String> {
         s,
         "<ProxifierProfile version=\"{}\" platform=\"{}\" product_id=\"{}\" product_minver=\"{}\">",
         profile.version,
-        escape(&profile.platform),
-        escape(&profile.product_id),
-        escape(&profile.product_minver),
+        escape_attr(&profile.platform),
+        escape_attr(&profile.product_id),
+        escape_attr(&profile.product_minver),
     )
     .unwrap();
 
@@ -55,7 +55,7 @@ fn write_options(s: &mut String, o: &Options) {
         bool_str(o.connection_loop_detection.resolve),
     )
     .unwrap();
-    writeln!(s, "\t\t<Udp mode=\"{}\" />", escape(&o.udp_mode)).unwrap();
+    writeln!(s, "\t\t<Udp mode=\"{}\" />", escape_attr(&o.udp_mode)).unwrap();
     writeln!(s, "\t\t<LeakPreventionMode enabled=\"{}\" />", bool_str(o.leak_prevention_mode))
         .unwrap();
     writeln!(s, "\t\t<ProcessOtherUsers enabled=\"{}\" />", bool_str(o.process_other_users))
@@ -90,7 +90,7 @@ fn write_resolve(s: &mut String, r: &Resolve) {
             s,
             "\t\t\t<ExclusionList OnlyFromListMode=\"{}\">{}</ExclusionList>",
             bool_str(r.exclusion_list.only_from_list_mode),
-            escape(&r.exclusion_list.value),
+            escape_text(&r.exclusion_list.value),
         )
         .unwrap();
     }
@@ -101,12 +101,12 @@ fn write_resolve(s: &mut String, r: &Resolve) {
 fn write_encryption(s: &mut String, e: &Encryption) {
     match &e.hash {
         Some(h) => {
-            writeln!(s, "\t\t<Encryption mode=\"{}\">", escape(&e.mode)).unwrap();
-            writeln!(s, "\t\t\t<Hash>{}</Hash>", escape(h)).unwrap();
+            writeln!(s, "\t\t<Encryption mode=\"{}\">", escape_attr(&e.mode)).unwrap();
+            writeln!(s, "\t\t\t<Hash>{}</Hash>", escape_text(h)).unwrap();
             s.push_str("\t\t</Encryption>\n");
         }
         None => {
-            writeln!(s, "\t\t<Encryption mode=\"{}\" />", escape(&e.mode)).unwrap();
+            writeln!(s, "\t\t<Encryption mode=\"{}\" />", escape_attr(&e.mode)).unwrap();
         }
     }
 }
@@ -127,17 +127,17 @@ fn write_proxy_list(s: &mut String, proxies: &[Proxy]) {
             writeln!(s, "\t\t\t<Options>{}</Options>", opts).unwrap();
         }
         writeln!(s, "\t\t\t<Port>{}</Port>", p.port).unwrap();
-        writeln!(s, "\t\t\t<Address>{}</Address>", escape(&p.address)).unwrap();
+        writeln!(s, "\t\t\t<Address>{}</Address>", escape_text(&p.address)).unwrap();
         if let Some(label) = &p.label {
-            writeln!(s, "\t\t\t<Label>{}</Label>", escape(label)).unwrap();
+            writeln!(s, "\t\t\t<Label>{}</Label>", escape_text(label)).unwrap();
         }
         if let Some(auth) = &p.authentication {
             s.push_str("\t\t\t<Authentication>\n");
             if let Some(u) = &auth.username {
-                writeln!(s, "\t\t\t\t<Username>{}</Username>", escape(u)).unwrap();
+                writeln!(s, "\t\t\t\t<Username>{}</Username>", escape_text(u)).unwrap();
             }
             if let Some(pw) = &auth.password {
-                writeln!(s, "\t\t\t\t<Password>{}</Password>", escape(pw)).unwrap();
+                writeln!(s, "\t\t\t\t<Password>{}</Password>", escape_text(pw)).unwrap();
             }
             s.push_str("\t\t\t</Authentication>\n");
         }
@@ -159,7 +159,7 @@ fn write_chain_list(s: &mut String, chains: &[Chain]) {
     for c in chains {
         writeln!(s, "\t\t<Chain id=\"{}\">", c.id).unwrap();
         if let Some(name) = &c.name {
-            writeln!(s, "\t\t\t<Name>{}</Name>", escape(name)).unwrap();
+            writeln!(s, "\t\t\t<Name>{}</Name>", escape_text(name)).unwrap();
         }
         for m in &c.members {
             writeln!(s, "\t\t\t<Proxy id=\"{}\" />", m.proxy_id).unwrap();
@@ -192,20 +192,21 @@ fn write_rule_list(s: &mut String, rules: &[Rule]) {
             }
         }
         if !r.ports.is_empty() {
-            writeln!(s, "\t\t\t<Ports>{}</Ports>", escape(&join_list(&r.ports))).unwrap();
+            writeln!(s, "\t\t\t<Ports>{}</Ports>", escape_text(&join_list(&r.ports))).unwrap();
         }
         if !r.targets.is_empty() {
-            writeln!(s, "\t\t\t<Targets>{}</Targets>", escape(&join_list(&r.targets))).unwrap();
+            writeln!(s, "\t\t\t<Targets>{}</Targets>", escape_text(&join_list(&r.targets)))
+                .unwrap();
         }
         if !r.applications.is_empty() {
             writeln!(
                 s,
                 "\t\t\t<Applications>{}</Applications>",
-                escape(&join_list(&r.applications))
+                escape_text(&join_list(&r.applications))
             )
             .unwrap();
         }
-        writeln!(s, "\t\t\t<Name>{}</Name>", escape(&r.name)).unwrap();
+        writeln!(s, "\t\t\t<Name>{}</Name>", escape_text(&r.name)).unwrap();
         s.push_str("\t\t</Rule>\n");
     }
     s.push_str("\t</RuleList>\n");
@@ -223,18 +224,106 @@ fn join_list(items: &[String]) -> String {
     items.join("; ")
 }
 
-/// Escape XML text and attribute values. Covers `&`, `<`, `>`, `"`, `'`.
-fn escape(s: &str) -> String {
+/// Escape element *text*: `&` and `<`, which is all XML requires there.
+///
+/// A double quote must stay literal. Proxifier quotes application names
+/// containing spaces — `"Some App.exe"` — and its own reader does not decode
+/// `&quot;`, so escaping it produced a profile Proxifier refuses to load:
+/// "Error in application list: Unexpected blank space found". Our parser
+/// still decodes `&quot;`, so a profile written by an earlier build repairs
+/// itself when opened and saved.
+fn escape_text(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
         match c {
             '&' => out.push_str("&amp;"),
             '<' => out.push_str("&lt;"),
-            '>' => out.push_str("&gt;"),
-            '"' => out.push_str("&quot;"),
-            '\'' => out.push_str("&apos;"),
             _ => out.push(c),
         }
     }
     out
+}
+
+/// Escape an attribute value. Every attribute here is `"`-delimited.
+fn escape_attr(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for c in s.chars() {
+        match c {
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '"' => out.push_str("&quot;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{parse_str, to_xml_string};
+
+    /// Proxifier wraps an application name containing spaces in double
+    /// quotes and does not decode `&quot;`. Writing the entity produced a
+    /// profile it refused to load ("Error in application list: Unexpected
+    /// blank space found"), so the quote has to survive as a literal.
+    #[test]
+    fn a_quoted_application_name_keeps_its_literal_quotes() {
+        let src = concat!(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n",
+            "<ProxifierProfile version=\"102\" platform=\"Windows\" product_id=\"0\" ",
+            "product_minver=\"400\">\n",
+            "\t<ProxyList />\n\t<ChainList />\n\t<RuleList>\n",
+            "\t\t<Rule enabled=\"true\">\n",
+            "\t\t\t<Action type=\"Direct\" />\n",
+            "\t\t\t<Applications>\"Some App.exe\";\r\n\"Other App.exe\"</Applications>\n",
+            "\t\t\t<Name>R</Name>\n",
+            "\t\t</Rule>\n\t</RuleList>\n</ProxifierProfile>\n",
+        );
+        let profile = parse_str(src).unwrap();
+        assert_eq!(profile.rules[0].applications, ["\"Some App.exe\"", "\"Other App.exe\""]);
+
+        let out = to_xml_string(&profile).unwrap();
+        assert!(out.contains("<Applications>\"Some App.exe\"; \"Other App.exe\"</Applications>"));
+        assert!(!out.contains("&quot;"), "a quote was escaped into an entity:\n{out}");
+        // Reparsing what we wrote gives the same rule back.
+        assert_eq!(parse_str(&out).unwrap().rules[0], profile.rules[0]);
+    }
+
+    /// A profile written by an earlier build carries `&quot;`. Opening and
+    /// saving it is the repair, so the parser must still decode the entity.
+    #[test]
+    fn an_entity_written_by_an_earlier_build_is_decoded_and_rewritten_literally() {
+        let broken = concat!(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n",
+            "<ProxifierProfile version=\"102\" platform=\"Windows\" product_id=\"0\" ",
+            "product_minver=\"400\">\n",
+            "\t<ProxyList />\n\t<ChainList />\n\t<RuleList>\n",
+            "\t\t<Rule enabled=\"true\">\n",
+            "\t\t\t<Action type=\"Direct\" />\n",
+            "\t\t\t<Applications>&quot;Some App.exe&quot;</Applications>\n",
+            "\t\t\t<Name>R</Name>\n",
+            "\t\t</Rule>\n\t</RuleList>\n</ProxifierProfile>\n",
+        );
+        let profile = parse_str(broken).unwrap();
+        assert_eq!(profile.rules[0].applications, ["\"Some App.exe\""]);
+        let out = to_xml_string(&profile).unwrap();
+        assert!(out.contains("<Applications>\"Some App.exe\"</Applications>"));
+        assert!(!out.contains("&quot;"));
+    }
+
+    #[test]
+    fn an_ampersand_in_text_is_still_escaped() {
+        let src = concat!(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n",
+            "<ProxifierProfile version=\"102\" platform=\"Windows\" product_id=\"0\" ",
+            "product_minver=\"400\">\n",
+            "\t<ProxyList />\n\t<ChainList />\n\t<RuleList>\n",
+            "\t\t<Rule enabled=\"true\">\n",
+            "\t\t\t<Action type=\"Direct\" />\n",
+            "\t\t\t<Name>Telemetry &amp; analytics</Name>\n",
+            "\t\t</Rule>\n\t</RuleList>\n</ProxifierProfile>\n",
+        );
+        let out = to_xml_string(&parse_str(src).unwrap()).unwrap();
+        assert!(out.contains("<Name>Telemetry &amp; analytics</Name>"));
+    }
 }

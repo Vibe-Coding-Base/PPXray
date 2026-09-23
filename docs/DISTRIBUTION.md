@@ -15,7 +15,7 @@ SmartScreen prevented an unrecognized app from starting."* That is what
 Windows says about any unsigned binary.
 
 ```powershell
-certutil -hashfile ppxray_0.3.0_x64_en-US.msi SHA256
+certutil -hashfile ppxray_0.3.1_x64_en-US.msi SHA256
 ```
 
 If it matches the release notes: right-click the installer → **Properties** →
@@ -28,7 +28,7 @@ Gatekeeper will say *"ppxray can't be opened because Apple cannot check it for
 malicious software."*
 
 ```sh
-shasum -a 256 ~/Downloads/ppxray_0.3.0_aarch64.dmg
+shasum -a 256 ~/Downloads/ppxray_0.3.1_aarch64.dmg
 ```
 
 If it matches: open the `.dmg`, drag ppxray to `/Applications`, then
@@ -43,13 +43,13 @@ xattr -dr com.apple.quarantine /Applications/ppxray.app
 
 ```sh
 # AppImage — portable, no install
-sha256sum ppxray_0.3.0_amd64.AppImage
-chmod +x ppxray_0.3.0_amd64.AppImage
-./ppxray_0.3.0_amd64.AppImage
+sha256sum ppxray_0.3.1_amd64.AppImage
+chmod +x ppxray_0.3.1_amd64.AppImage
+./ppxray_0.3.1_amd64.AppImage
 
 # Debian / Ubuntu
-sha256sum ppxray_0.3.0_amd64.deb
-sudo dpkg -i ppxray_0.3.0_amd64.deb
+sha256sum ppxray_0.3.1_amd64.deb
+sudo dpkg -i ppxray_0.3.1_amd64.deb
 sudo apt-get install -f   # pull in any missing dependencies
 ```
 
@@ -115,7 +115,7 @@ with your own certificate.
 ```powershell
 # Windows — signtool.exe from the Windows SDK
 signtool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com `
-  /f your-cert.pfx /p "$env:CERT_PASSWORD" ppxray_0.3.0_x64_en-US.msi
+  /f your-cert.pfx /p "$env:CERT_PASSWORD" ppxray_0.3.1_x64_en-US.msi
 ```
 
 ```sh

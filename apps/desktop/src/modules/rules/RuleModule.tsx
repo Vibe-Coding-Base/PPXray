@@ -172,6 +172,7 @@ export function RuleModule() {
   ]);
 
   const activeRule = detailIndex != null ? profile?.rules[detailIndex] : undefined;
+  const detailOpen = activeRule !== undefined && detailIndex != null;
 
   const onRevealRule = useCallback(
     (idx: number) => {
@@ -390,28 +391,28 @@ export function RuleModule() {
 
       {selectedArr.length > 0 && <BulkToolbar selectedIndices={selectedArr} />}
 
+      {/* One table, always in the same place. Rendering a second copy in an
+          `else` branch unmounted the scroll container every time the detail
+          panel opened or closed, which sent the list back to the top. Only
+          the detail panel and its handle come and go. */}
       <Box style={{ flex: 1, minHeight: rem(0) }}>
-        {activeRule && detailIndex != null ? (
-          <SplitGroup direction="horizontal" autoSaveId="rules-split">
-            <SplitPanel defaultSize={66} minSize={30}>
-              <Box style={{ height: "100%", display: "flex", padding: 8 }}>
-                <RuleTable rows={visibleRows} overshadows={overshadows} changes={changes.byId} />
-              </Box>
-            </SplitPanel>
-            <SplitHandle orientation="vertical" />
-            <SplitPanel defaultSize={34} minSize={20}>
+        <SplitGroup direction="horizontal" autoSaveId="rules-split">
+          <SplitPanel id="rules" defaultSize={66} minSize={30}>
+            <Box style={{ height: "100%", display: "flex", padding: 8 }}>
+              <RuleTable rows={visibleRows} overshadows={overshadows} changes={changes.byId} />
+            </Box>
+          </SplitPanel>
+          {detailOpen && <SplitHandle orientation="vertical" />}
+          {detailOpen && (
+            <SplitPanel id="detail" defaultSize={34} minSize={20}>
               <RuleDetailPanel
-                rule={activeRule}
-                index={detailIndex}
+                rule={activeRule!}
+                index={detailIndex!}
                 onClose={() => openDetail(null)}
               />
             </SplitPanel>
-          </SplitGroup>
-        ) : (
-          <Box style={{ height: "100%", display: "flex", padding: 8 }}>
-            <RuleTable rows={visibleRows} overshadows={overshadows} changes={changes.byId} />
-          </Box>
-        )}
+          )}
+        </SplitGroup>
       </Box>
 
       <RuleTesterModal

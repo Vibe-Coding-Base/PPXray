@@ -5,6 +5,29 @@ All notable changes to ppxray are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-09-23
+
+### Fixed
+
+- **Proxifier refused a profile saved by ppxray.** "Error in application
+  list: Unexpected blank space found." Proxifier wraps an application name
+  containing spaces in double quotes — `"Some App.exe"` — and its reader does
+  not decode `&quot;`, which is what the serializer wrote. The escape set for
+  element text is now the minimum XML requires, `&` and `<`; a quote stays
+  literal. Attribute values keep their own escaper.
+
+  A profile written by 0.2.0 or 0.3.0 repairs itself: the parser always
+  decoded the entity, so nothing was lost on the way in. Open it and save it.
+
+- **The rule list jumped back to the top** when the detail panel opened or
+  closed. The module rendered a second copy of the table in the other branch
+  of a ternary, so React unmounted the scroll container and built a new one.
+  One table now stays mounted; only the detail panel comes and goes.
+
+- rustls 0.23.45, for RUSTSEC-2026-0285 (TLS 1.3 handshake messages accepted
+  across encryption level boundaries, medium). It is the TLS stack under the
+  assistant's HTTP client and the updater.
+
 ## [0.3.0] — 2026-09-19
 
 ### Assistant sees the policy, and can test it
@@ -226,5 +249,6 @@ thing that can open a socket, and it is off until turned on.
 - The rule directory is not watched; refresh manually after editing files
   outside the app.
 
+[0.3.1]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.2.0
