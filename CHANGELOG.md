@@ -5,7 +5,10 @@ All notable changes to ppxray are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.2] — 2026-11-08
+## [0.3.3] — 2026-11-08
+
+0.3.2 was tagged but never released: its build stopped at the dependency
+audit. Everything it was meant to carry is here.
 
 ### Changed
 
@@ -289,7 +292,7 @@ thing that can open a socket, and it is off until turned on.
 - The rule directory is not watched; refresh manually after editing files
   outside the app.
 
-[0.3.2]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.2
+[0.3.3]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.3
 [0.3.1]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.2.0
