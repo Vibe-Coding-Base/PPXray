@@ -15,7 +15,7 @@ pub enum DetectError {
     Io(#[from] std::io::Error),
 
     #[error("YAML parse error: {0}")]
-    Yaml(#[from] serde_yaml_ng::Error),
+    Yaml(#[from] serde_norway::Error),
 
     #[error("rule `{rule_id}` failed: {message}")]
     RuleFailed { rule_id: String, message: String },

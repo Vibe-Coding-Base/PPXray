@@ -36,6 +36,9 @@ pub fn run(store: &LogStore, sql: &str, max_rows: usize) -> IngestResult<AdhocRe
         let mut rows = stmt.query([])?;
 
         let mut columns: Vec<String> = Vec::new();
+        // Columns of DuckDB's NULL type — an untyped `SELECT NULL AS x`.
+        // duckdb-rs panics reading a cell from one, so they are never read.
+        let mut untyped: Vec<bool> = Vec::new();
         let mut out: Vec<Vec<Json>> = Vec::new();
 
         while let Some(row) = rows.next()? {
@@ -43,11 +46,15 @@ pub fn run(store: &LogStore, sql: &str, max_rows: usize) -> IngestResult<AdhocRe
             // a row; asking before that returns an empty list on some
             // DuckDB versions.
             if columns.is_empty() {
-                columns = row.as_ref().column_names().into_iter().map(|c| c.to_string()).collect();
+                let stmt = row.as_ref();
+                columns = stmt.column_names().into_iter().map(|c| c.to_string()).collect();
+                untyped = (0..columns.len())
+                    .map(|i| stmt.column_type(i) == duckdb::arrow::datatypes::DataType::Null)
+                    .collect();
             }
             let mut cells = Vec::with_capacity(columns.len());
-            for i in 0..columns.len() {
-                cells.push(to_json(row.get_ref(i)?));
+            for (i, &is_untyped) in untyped.iter().enumerate() {
+                cells.push(if is_untyped { Json::Null } else { to_json(row.get_ref(i)?) });
             }
             out.push(cells);
             if out.len() >= max_rows {
@@ -215,6 +222,16 @@ mod tests {
         assert_eq!(r.rows[0][1], Json::from(443));
         // A NULL host is JSON null, not the string "null".
         assert_eq!(r.rows[1][2], Json::Null);
+    }
+
+    /// An untyped `NULL` is a column of DuckDB's NULL type, which duckdb-rs
+    /// cannot read and panics on. The assistant writes these.
+    #[test]
+    fn an_untyped_null_column_comes_back_as_null() {
+        let (_dir, store) = store();
+        let r = run(&store, "SELECT NULL AS x, process FROM events ORDER BY id", 10).unwrap();
+        assert_eq!(r.columns, vec!["x", "process"]);
+        assert_eq!(r.rows[0], vec![Json::Null, Json::String("a.exe".into())]);
     }
 
     #[test]

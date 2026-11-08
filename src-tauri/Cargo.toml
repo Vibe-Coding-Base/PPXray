@@ -18,7 +18,15 @@ tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-process = "2"
-tauri-plugin-updater = "2"
+# Without the default `zip` feature, which only unpacks v1-style `.zip` and
+# `.AppImage.tar.gz` update bundles. This project ships the bare `.msi`,
+# `-setup.exe` and `.AppImage` (`createUpdaterArtifacts: true`), and the
+# macOS `.app.tar.gz` path does not depend on the feature. Dropping it drops
+# zip 4, which has no fixed release in the updater's range.
+tauri-plugin-updater = { version = "2", default-features = false, features = [
+    "rustls-tls",
+    "system-proxy",
+] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }

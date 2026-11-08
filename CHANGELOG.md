@@ -22,6 +22,29 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Proxifier. A list typed one entry per line without semicolons was read as
   a single entry with line breaks inside it.
 
+- **An ad-hoc query selecting a bare `NULL` no longer crashes.** The new
+  DuckDB reports such a column with its own NULL type, which duckdb-rs
+  panics on reading; the assistant's query tool now returns it as null, and
+  the grouped hunt rules select a typed `CAST(NULL AS VARCHAR)`.
+
+### Security
+
+- quinn-proto 0.11.19 (RUSTSEC-2026-0338, -0340, -0343, high), rustls
+  0.23.46 (RUSTSEC-2026-0346 to -0349), rustls-webpki 0.103.16
+  (RUSTSEC-2026-0382), webpki-roots and webpki-root-certs 1.0.11
+  (RUSTSEC-2026-0381, -0383), tokio 1.54.1 (RUSTSEC-2026-0386). These are
+  the TLS and HTTP stack under the assistant's client and the updater.
+- DuckDB 1.20000.1, which drops arrow 56 (RUSTSEC-2026-0442) and its
+  build-time zip 6 (RUSTSEC-2026-0367 to -0369, -0429).
+- The updater is built without its `zip` feature, removing zip 4 and the
+  same four advisories. That feature only unpacks v1-style `.zip` and
+  `.AppImage.tar.gz` update bundles, which this project does not ship.
+- Rule YAML is parsed by `serde_norway` instead of `serde_yaml_ng`, whose
+  `unsafe-libyaml` is unmaintained (RUSTSEC-2024-0449).
+- zbus_names, zvariant and zvariant_derive are ignored in
+  `.cargo/audit.toml`: unmaintained since their merge into zbus 6, Linux-only,
+  and reached only through Tauri's opener plugin and keyring.
+
 ## [0.3.1] — 2026-09-23
 
 ### Fixed

@@ -202,12 +202,14 @@ fn run_events_grouped(
         GroupBy::Dst => "COALESCE(dst_host, dst_ip)",
         GroupBy::ProcessAndDst => "process, COALESCE(dst_host, dst_ip)",
     };
+    // A bare `NULL` comes back as a column of DuckDB's NULL type, which
+    // duckdb-rs 1.20000 cannot read (it panics); give it the column's type.
     let dst_expr = match group_by {
-        GroupBy::Process => "NULL",
+        GroupBy::Process => "CAST(NULL AS VARCHAR)",
         GroupBy::Dst | GroupBy::ProcessAndDst => "COALESCE(dst_host, dst_ip)",
     };
     let process_expr = match group_by {
-        GroupBy::Dst => "NULL",
+        GroupBy::Dst => "CAST(NULL AS VARCHAR)",
         GroupBy::Process | GroupBy::ProcessAndDst => "process",
     };
     let sql = format!(

@@ -92,7 +92,7 @@ pub fn load_dir(dir: &Path) -> DetectResult<Vec<UserRule>> {
 /// command — we parse-on-write so the user sees errors before the file
 /// hits disk.
 pub fn parse_yaml(text: &str, source_filename: &str) -> DetectResult<DetectionRule> {
-    let dto: YamlRule = serde_yaml_ng::from_str(text)
+    let dto: YamlRule = serde_norway::from_str(text)
         .map_err(|e| DetectError::Custom(format!("YAML parse error: {e}")))?;
     dto.into_rule(source_filename.to_string())
 }
@@ -145,7 +145,7 @@ impl YamlSeverity {
 }
 
 /// Internally-tagged enum (`kind: events_where` etc.) so the YAML has a
-/// consistent shape regardless of the variant. `serde_yaml_ng`'s default
+/// consistent shape regardless of the variant. `serde_norway`'s default
 /// external-tagging mode requires YAML tags (`!events_where`) which is
 /// awkward to type in a config file; internal tagging side-steps this.
 #[derive(Deserialize)]
