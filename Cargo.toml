@@ -9,7 +9,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.3.1"
+version = "0.3.2"
 edition = "2024"
 # 1.88 is forced by `time` >= 0.3.47, which we need for RUSTSEC-2026-0009.
 # This is an application, not a library — nothing compiles ppxray as a

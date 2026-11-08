@@ -45,17 +45,22 @@ expression: head
 	<RuleList>
 		<Rule enabled="true">
 			<Action type="Direct" />
-			<Targets>localhost; 127.0.0.1; ::1; %ComputerName%</Targets>
+			<Targets>localhost;
+127.0.0.1;
+::1;
+%ComputerName%</Targets>
 			<Name>Localhost 1</Name>
 		</Rule>
 		<Rule enabled="true">
 			<Action type="Block" />
-			<Targets>*.cdn.example; assets.example</Targets>
+			<Targets>*.cdn.example;
+assets.example</Targets>
 			<Name>Block telemetry 2</Name>
 		</Rule>
 		<Rule enabled="false">
 			<Action type="Block" />
-			<Targets>api.example; *.api.example</Targets>
+			<Targets>api.example;
+*.api.example</Targets>
 			<Name>Telemetry &amp; analytics 3</Name>
 		</Rule>
 		<Rule enabled="true">
@@ -68,4 +73,4 @@ expression: head
 			<Action type="Direct" />
 			<Targets>198.51.100.10-198.51.100.20</Targets>
 			<Applications>browser.exe</Applications>
-			<Name>Chat 5</Na
+			<Name>Chat

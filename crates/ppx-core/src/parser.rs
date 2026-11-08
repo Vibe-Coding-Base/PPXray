@@ -655,8 +655,8 @@ fn qname_string(bytes: &[u8]) -> String {
 /// `Applications`, and `Ports`.
 fn split_list(input: &str) -> Vec<String> {
     input
-        .split(';')
-        .map(|s| s.trim().trim_matches(|c: char| c == '\n' || c == '\r' || c == '\t').trim())
+        .split([';', '\n', '\r'])
+        .map(str::trim)
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string())
         .collect()
@@ -666,4 +666,19 @@ fn split_list(input: &str) -> Vec<String> {
 fn _qname_kind(name: &QName<'_>) -> &'static str {
     // Placeholder: kept for potential future namespaced variants.
     if name.prefix().is_some() { "prefixed" } else { "unprefixed" }
+}
+
+#[cfg(test)]
+mod split_list_tests {
+    use super::split_list;
+
+    /// Proxifier accepts a line break as a separator on its own, so a list
+    /// typed one entry per line without semicolons is still several entries.
+    #[test]
+    fn a_line_break_separates_entries_like_a_semicolon() {
+        assert_eq!(
+            split_list("a.example\r\nb.example;\r\n c.example ;"),
+            ["a.example", "b.example", "c.example"]
+        );
+    }
 }

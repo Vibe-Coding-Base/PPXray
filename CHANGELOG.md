@@ -5,6 +5,23 @@ All notable changes to ppxray are documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-11-08
+
+### Changed
+
+- **Lists are saved one entry per line.** `Targets`, `Applications` and
+  `Ports` used to be joined with `"; "` onto a single line, so a rule with a
+  long target list showed as one unbroken line in Proxifier's rule editor.
+  Each entry now ends with `;` and a CRLF — the form Proxifier writes itself
+  when entries are typed on separate lines — so every value sits on its own
+  row there. Open a profile and save it to reformat every rule.
+
+### Fixed
+
+- **A line break now separates list entries on its own**, as it does in
+  Proxifier. A list typed one entry per line without semicolons was read as
+  a single entry with line breaks inside it.
+
 ## [0.3.1] — 2026-09-23
 
 ### Fixed
@@ -249,6 +266,7 @@ thing that can open a socket, and it is off until turned on.
 - The rule directory is not watched; refresh manually after editing files
   outside the app.
 
+[0.3.2]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Vibe-Coding-Base/PPXray/releases/tag/v0.2.0

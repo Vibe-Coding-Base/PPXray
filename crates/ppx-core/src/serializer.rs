@@ -3,10 +3,12 @@
 //! Format decisions:
 //! - Tab indentation (matches stock Proxifier output).
 //! - Self-closing tags for attribute-only elements.
-//! - Lists (`Targets`, `Applications`, `Ports`) joined with `"; "` on a single
-//!   line. Proxifier accepts both single- and multi-line variants; single-line
-//!   keeps our output deterministic. Humans can still edit multi-line files
-//!   and we'll reparse them correctly.
+//! - Lists (`Targets`, `Applications`, `Ports`) are written one entry per
+//!   line, separated by `;` and CRLF — the form Proxifier itself writes when
+//!   entries are typed on separate lines. Its rule editor shows the field's
+//!   text verbatim, so a long target or application list stays readable
+//!   there. The break must be CRLF: the Windows edit control does not break
+//!   a line on a bare LF.
 //! - `<?xml?>` declaration identical to Proxifier's.
 
 use std::fmt::Write as _;
@@ -220,8 +222,11 @@ fn bool_str(b: bool) -> &'static str {
     if b { "true" } else { "false" }
 }
 
+/// Separator between list entries: one entry per line in Proxifier's editor.
+const LIST_SEP: &str = ";\r\n";
+
 fn join_list(items: &[String]) -> String {
-    items.join("; ")
+    items.join(LIST_SEP)
 }
 
 /// Escape element *text*: `&` and `<`, which is all XML requires there.
@@ -283,7 +288,9 @@ mod tests {
         assert_eq!(profile.rules[0].applications, ["\"Some App.exe\"", "\"Other App.exe\""]);
 
         let out = to_xml_string(&profile).unwrap();
-        assert!(out.contains("<Applications>\"Some App.exe\"; \"Other App.exe\"</Applications>"));
+        assert!(
+            out.contains("<Applications>\"Some App.exe\";\r\n\"Other App.exe\"</Applications>")
+        );
         assert!(!out.contains("&quot;"), "a quote was escaped into an entity:\n{out}");
         // Reparsing what we wrote gives the same rule back.
         assert_eq!(parse_str(&out).unwrap().rules[0], profile.rules[0]);
@@ -325,5 +332,31 @@ mod tests {
         );
         let out = to_xml_string(&parse_str(src).unwrap()).unwrap();
         assert!(out.contains("<Name>Telemetry &amp; analytics</Name>"));
+    }
+
+    /// A list written on one line comes out one entry per line, so
+    /// Proxifier's rule editor shows each value on its own row.
+    #[test]
+    fn a_single_line_list_is_written_one_entry_per_line() {
+        let src = concat!(
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n",
+            "<ProxifierProfile version=\"102\" platform=\"Windows\" product_id=\"0\" ",
+            "product_minver=\"400\">\n",
+            "\t<ProxyList />\n\t<ChainList />\n\t<RuleList>\n",
+            "\t\t<Rule enabled=\"true\">\n",
+            "\t\t\t<Action type=\"Direct\" />\n",
+            "\t\t\t<Ports>80; 443</Ports>\n",
+            "\t\t\t<Targets>a.example; *.b.example;c.example</Targets>\n",
+            "\t\t\t<Name>R</Name>\n",
+            "\t\t</Rule>\n\t</RuleList>\n</ProxifierProfile>\n",
+        );
+        let profile = parse_str(src).unwrap();
+        let out = to_xml_string(&profile).unwrap();
+        assert!(out.contains("<Ports>80;\r\n443</Ports>"), "{out}");
+        assert!(
+            out.contains("<Targets>a.example;\r\n*.b.example;\r\nc.example</Targets>"),
+            "{out}"
+        );
+        assert_eq!(parse_str(&out).unwrap(), profile);
     }
 }
